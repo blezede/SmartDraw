@@ -37,10 +37,11 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
     private Paint mPaint;
     private Canvas mCanvas;
     private boolean mIsDraw = false;
-    Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
+    private Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
     private PaletteData mPaletteData = new PaletteData();
     private float mStrokeWith = 5f;
     private DrawMode mCurrDrawMode = DrawMode.DRAW;
+    private int mColor = Color.BLACK;
 
     public PaletteView(Context context) {
         this(context, null);
@@ -67,7 +68,7 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         //画笔
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mPaint.setStrokeWidth(5f);
-        mPaint.setColor(Color.BLACK);
+        mPaint.setColor(mColor);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -102,10 +103,15 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mCurrDrawMode == DrawMode.PHOTO) {
+            return false;
+        }
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         mCurrX = event.getX();
         mCurrY = event.getY();
         switch (action) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+                break;
             case MotionEvent.ACTION_DOWN:
                 mCurrPathEntity = new PathEntity(LineType.DRAW);
                 Paint paint = new Paint(mPaint);
@@ -124,6 +130,8 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
             case MotionEvent.ACTION_UP:
                 break;
+            case MotionEvent.ACTION_POINTER_UP:
+                break;
         }
         flush();
         return true;
@@ -137,14 +145,33 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         mDrawHandler.sendEmptyMessage(0);
     }
 
+    /**
+     * set current stroke with.
+     * @param width
+     */
     private void setStrokeWith(float width) {
         this.mStrokeWith = width;
     }
 
+    /**
+     * set current mode.
+     * @param mode
+     */
     private void setDrawMode(DrawMode mode) {
         this.mCurrDrawMode = mode;
     }
 
+    /**
+     * new page data
+     */
+    private void setPaletteData(PaletteData data) {
+        this.mPaletteData = data;
+        flush();
+    }
+
+    /**
+     * clear screen
+     */
     public void clear() {
         if(mPaletteData == null) {
             return;

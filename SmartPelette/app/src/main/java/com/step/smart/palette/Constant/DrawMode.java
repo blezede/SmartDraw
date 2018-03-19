@@ -10,5 +10,6 @@ public enum DrawMode {
     ERASER,//橡皮
     LINE,//直线
     CIRCLE,//圆
-    RECTANGLE//矩形
+    RECTANGLE,//矩形
+    PHOTO //图片
 }

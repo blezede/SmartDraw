@@ -13,14 +13,53 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <Button
-            android:id="@+id/clear"
+        <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Clear"
-            android:textAllCaps="false"
-            android:layout_gravity="end|bottom"
-            />
+            android:layout_gravity="end|bottom">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/undo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Undo"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/redo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Redo"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/line_shape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Line_Shape"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/eraser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Eraser"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
     </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>
