@@ -1,12 +1,15 @@
 package com.step.smart.palette.widget;
 
 import android.content.Context;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -35,12 +38,15 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
     private HandlerThread mDrawThread;
     private DrawHandler mDrawHandler;
     private Paint mPaint;
+    private Paint mEraserPaint;
     private Canvas mCanvas;
     private boolean mIsDraw = false;
     private Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
     private PaletteData mPaletteData = new PaletteData();
-    private float mStrokeWith = 5f;
-    private DrawMode mCurrDrawMode = DrawMode.DRAW;
+    private float mStrokeWidth = 5f;
+    private float mEraserWidth = 140f;
+    private DrawMode mCurrDrawMode = DrawMode.EDIT;
+    private LineType mCurrentLineType = LineType.DRAW;
     private int mColor = Color.BLACK;
 
     public PaletteView(Context context) {
@@ -72,6 +78,13 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setMaskFilter(new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID));
+
+        mEraserPaint = new Paint(mPaint);
+        mEraserPaint.setStrokeCap(Paint.Cap.ROUND);//线冒
+        mEraserPaint.setStrokeWidth(mEraserWidth);
+        mEraserPaint.setColor(Color.WHITE);
+        mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//关键代码
     }
 
     @Override
@@ -95,6 +108,8 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         this.mDrawHandler = null;
     }
 
+    private float mOriginalX;
+    private float mOriginalY;
     private float mCurrX;
     private float mCurrY;
     private float mDownX;
@@ -103,7 +118,7 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mCurrDrawMode == DrawMode.PHOTO) {
+        if (mCurrDrawMode == DrawMode.PHOTO || mCurrDrawMode == DrawMode.MOVE) {
             return false;
         }
         int action = event.getAction() & MotionEvent.ACTION_MASK;
@@ -113,20 +128,10 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
             case MotionEvent.ACTION_POINTER_DOWN:
                 break;
             case MotionEvent.ACTION_DOWN:
-                mCurrPathEntity = new PathEntity(LineType.DRAW);
-                Paint paint = new Paint(mPaint);
-                Path path = new Path();
-                mDownX = mCurrX;
-                mDownY = mCurrY;
-                mCurrPathEntity.paint = paint;
-                mCurrPathEntity.path = path;
-                mPaletteData.pathList.add(mCurrPathEntity);
-                mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
+                onTouchDown();
                 break;
             case MotionEvent.ACTION_MOVE:
-                mCurrPathEntity.path.quadTo(mDownX, mDownY, (mCurrX + mDownX) / 2, (mCurrY + mDownY) / 2);
-                mDownX = mCurrX;
-                mDownY = mCurrY;
+                onTouchMove();
                 break;
             case MotionEvent.ACTION_UP:
                 break;
@@ -135,6 +140,52 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         }
         flush();
         return true;
+    }
+
+    private void onTouchDown() {
+        mOriginalX = mDownX = mCurrX;
+        mOriginalY = mDownY = mCurrY;
+        mCurrPathEntity = new PathEntity(mCurrentLineType);
+        switch (mCurrentLineType) {
+            case DRAW:
+            case LINE:
+                mCurrPathEntity.paint = new Paint(mPaint);
+                mCurrPathEntity.path = new Path();
+                mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
+                break;
+            case CIRCLE:
+            case RECTANGLE:
+                RectF rect = new RectF(mCurrX, mCurrY, mCurrX, mCurrY);
+                mCurrPathEntity.rect = rect;
+                mCurrPathEntity.paint = new Paint(mPaint);
+                break;
+            case ERASER:
+                mCurrPathEntity.paint = mEraserPaint;
+                mCurrPathEntity.path = new Path();
+                mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
+                break;
+        }
+        mPaletteData.pathList.add(mCurrPathEntity);
+    }
+
+    private void onTouchMove() {
+        switch (mCurrentLineType) {
+            case DRAW:
+            case ERASER:
+                mCurrPathEntity.path.quadTo(mDownX, mDownY, (mCurrX + mDownX) / 2, (mCurrY + mDownY) / 2);
+                break;
+            case LINE:
+                mCurrPathEntity.path.reset();
+                mCurrPathEntity.path.moveTo(mOriginalX, mOriginalY);
+                mCurrPathEntity.path.lineTo(mCurrX, mCurrY);
+                break;
+            case CIRCLE:
+            case RECTANGLE:
+                mCurrPathEntity.rect.set(mOriginalX < mCurrX ? mOriginalX : mCurrX, mOriginalY < mCurrY ? mOriginalY : mCurrY, mOriginalX > mCurrX ? mOriginalX : mCurrX, mOriginalY > mCurrY ? mOriginalY : mCurrY);
+                break;
+        }
+        mDownX = mCurrX;
+        mDownY = mCurrY;
     }
 
     private void flush() {
@@ -149,22 +200,34 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
      * set current stroke with.
      * @param width
      */
-    private void setStrokeWith(float width) {
-        this.mStrokeWith = width;
+    public void setStrokeWith(float width) {
+        this.mStrokeWidth = width;
     }
 
     /**
      * set current mode.
      * @param mode
      */
-    private void setDrawMode(DrawMode mode) {
+    public void setDrawMode(DrawMode mode) {
         this.mCurrDrawMode = mode;
+    }
+
+    public void setLineType(LineType type) {
+        this.mCurrentLineType = type;
+    }
+
+    /**
+     * get current mode.
+     *
+     */
+    public DrawMode getDrawMode() {
+        return this.mCurrDrawMode;
     }
 
     /**
      * new page data
      */
-    private void setPaletteData(PaletteData data) {
+    public void setPaletteData(PaletteData data) {
         this.mPaletteData = data;
         flush();
     }
@@ -178,6 +241,12 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
         }
         mPaletteData.pathList.clear();
         flush();
+    }
+
+    public void undo() {
+    }
+
+    public void redo() {
     }
 
     class DrawHandler extends Handler {
@@ -198,9 +267,38 @@ public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
                     return;
                 }
                 mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                for (PathEntity p : mPaletteData.pathList) {
-                    mCanvas.drawPath(p.path, p.paint);
+                for (int i = 0; i < mPaletteData.pathList.size(); i++) {
+                    PathEntity p = mPaletteData.pathList.get(i);
+                    if (p.type == LineType.DRAW || p.type == LineType.LINE || p.type == LineType.ERASER) {
+                        mCanvas.drawPath(p.path, p.paint);
+                    } else if(p.type == LineType.CIRCLE) {
+                        mCanvas.drawOval(p.rect, p.paint);
+                    } else if(p.type == LineType.RECTANGLE) {
+                        mCanvas.drawRect(p.rect, p.paint);
+                    }
                 }
+                /*for (PathEntity p : mPaletteData.pathList) {
+                    if (p.type == LineType.DRAW || p.type == LineType.LINE || p.type == LineType.ERASER) {
+                        mCanvas.drawPath(p.path, p.paint);
+                    } else if(p.type == LineType.CIRCLE) {
+                        mCanvas.drawOval(p.rect, p.paint);
+                    } else if(p.type == LineType.RECTANGLE) {
+                        mCanvas.drawRect(p.rect, p.paint);
+                    }
+                    *//*switch (p.type) {
+                        case DRAW:
+                        case LINE:
+                        case ERASER:
+                            mCanvas.drawPath(p.path, p.paint);
+                            break;
+                        case CIRCLE:
+                            mCanvas.drawOval(p.rect, p.paint);
+                            break;
+                        case RECTANGLE:
+                            mCanvas.drawRect(p.rect, p.paint);
+                            break;
+                    }*//*
+                }*/
             } finally {
                 if (mCanvas != null) {
                     mSurfaceHolder.unlockCanvasAndPost(mCanvas);

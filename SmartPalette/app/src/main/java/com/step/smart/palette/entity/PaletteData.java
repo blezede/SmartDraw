@@ -12,4 +12,6 @@ public class PaletteData {
     public List<PathEntity> pathList = new ArrayList<>();
 
     public List<PathEntity> redoList = new ArrayList<>();
+
+    public List<PathEntity> undoList = new ArrayList<>();
 }
