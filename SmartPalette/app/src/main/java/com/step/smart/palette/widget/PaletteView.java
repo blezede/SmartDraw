@@ -1,309 +1,206 @@
 package com.step.smart.palette.widget;
 
 import android.content.Context;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
-import com.step.smart.palette.entity.PathEntity;
-import com.step.smart.palette.entity.PaletteData;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.step.smart.palette.manager.FrameSizeManager;
+import com.step.smart.palette.utils.Preferences;
 
 /**
- * Created by weflow on 2018/3/19.
+ * Created by weflow on 2018/3/21.
  */
 
-public class PaletteView extends SurfaceView implements SurfaceHolder.Callback {
+public class PaletteView extends FrameLayout {
 
-    private SurfaceHolder mSurfaceHolder;
-    private HandlerThread mDrawThread;
-    private DrawHandler mDrawHandler;
-    private Paint mPaint;
-    private Paint mEraserPaint;
-    private Canvas mCanvas;
-    private boolean mIsDraw = false;
-    private Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
-    private PaletteData mPaletteData = new PaletteData();
-    private float mStrokeWidth = 5f;
-    private float mEraserWidth = 140f;
+    private static final String TAG = "PaletteFrameLayout";
+    private PaletteSurfaceView mPaletteSurfaceView;
+    private StrokeDrawView mStrokeDrawView;
+    private FrameSizeManager mFrameManager;
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
-    private LineType mCurrentLineType = LineType.DRAW;
-    private int mColor = Color.BLACK;
+    private LineType mCurrStrokeType = LineType.DRAW;
+    private PaletteInterface mPaletteInterface;
+    private FrameLayout mFrame;
 
-    public PaletteView(Context context) {
+    public PaletteView(@NonNull Context context) {
         this(context, null);
     }
 
-    public PaletteView(Context context, AttributeSet attrs) {
+    public PaletteView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public PaletteView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PaletteView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        _init();
+        init(context);
     }
 
-    private void _init() {
-        mSurfaceHolder = getHolder();
-        setZOrderOnTop(true);
-        mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
-        mSurfaceHolder.addCallback(this);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        this.setKeepScreenOn(true);
-
-        //画笔
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        mPaint.setStrokeWidth(5f);
-        mPaint.setColor(mColor);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setMaskFilter(new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID));
-
-        mEraserPaint = new Paint(mPaint);
-        mEraserPaint.setStrokeCap(Paint.Cap.ROUND);//线冒
-        mEraserPaint.setStrokeWidth(mEraserWidth);
-        mEraserPaint.setColor(Color.WHITE);
-        mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//关键代码
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        this.mIsDraw = true;
-        this.mDrawThread = new HandlerThread("SurfaceView_Draw");
-        this.mDrawThread.setPriority(Thread.MAX_PRIORITY);
-        this.mDrawThread.start();
-        this.mDrawHandler = new DrawHandler(mDrawThread.getLooper());
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        this.mIsDraw = false;
-        this.mDrawThread.quitSafely();
-        this.mDrawHandler = null;
-    }
-
-    private float mOriginalX;
-    private float mOriginalY;
-    private float mCurrX;
-    private float mCurrY;
-    private float mDownX;
-    private float mDownY;
-    private PathEntity mCurrPathEntity;
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (mCurrDrawMode == DrawMode.PHOTO || mCurrDrawMode == DrawMode.MOVE) {
-            return false;
+    private void init(Context context) {
+        if (context instanceof PaletteInterface) {
+            mPaletteInterface = (PaletteInterface) context;
         }
-        int action = event.getAction() & MotionEvent.ACTION_MASK;
-        mCurrX = event.getX();
-        mCurrY = event.getY();
-        switch (action) {
-            case MotionEvent.ACTION_POINTER_DOWN:
-                break;
-            case MotionEvent.ACTION_DOWN:
-                onTouchDown();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                onTouchMove();
-                break;
-            case MotionEvent.ACTION_UP:
-                break;
-            case MotionEvent.ACTION_POINTER_UP:
-                break;
+        if (mStrokeDrawView == null) {
+            mStrokeDrawView = new StrokeDrawView(context);
         }
-        flush();
-        return true;
-    }
-
-    private void onTouchDown() {
-        mOriginalX = mDownX = mCurrX;
-        mOriginalY = mDownY = mCurrY;
-        mCurrPathEntity = new PathEntity(mCurrentLineType);
-        switch (mCurrentLineType) {
-            case DRAW:
-            case LINE:
-                mCurrPathEntity.paint = new Paint(mPaint);
-                mCurrPathEntity.path = new Path();
-                mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
-                break;
-            case CIRCLE:
-            case RECTANGLE:
-                RectF rect = new RectF(mCurrX, mCurrY, mCurrX, mCurrY);
-                mCurrPathEntity.rect = rect;
-                mCurrPathEntity.paint = new Paint(mPaint);
-                break;
-            case ERASER:
-                mCurrPathEntity.paint = mEraserPaint;
-                mCurrPathEntity.path = new Path();
-                mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
-                break;
+        if (mPaletteSurfaceView == null) {
+            mPaletteSurfaceView = new PaletteSurfaceView(context);
         }
-        mPaletteData.pathList.add(mCurrPathEntity);
-    }
-
-    private void onTouchMove() {
-        switch (mCurrentLineType) {
-            case DRAW:
-            case ERASER:
-                mCurrPathEntity.path.quadTo(mDownX, mDownY, (mCurrX + mDownX) / 2, (mCurrY + mDownY) / 2);
-                break;
-            case LINE:
-                mCurrPathEntity.path.reset();
-                mCurrPathEntity.path.moveTo(mOriginalX, mOriginalY);
-                mCurrPathEntity.path.lineTo(mCurrX, mCurrY);
-                break;
-            case CIRCLE:
-            case RECTANGLE:
-                mCurrPathEntity.rect.set(mOriginalX < mCurrX ? mOriginalX : mCurrX, mOriginalY < mCurrY ? mOriginalY : mCurrY, mOriginalX > mCurrX ? mOriginalX : mCurrX, mOriginalY > mCurrY ? mOriginalY : mCurrY);
-                break;
+        if (mFrame == null) {
+            mFrame = new FrameLayout(context);
         }
-        mDownX = mCurrX;
-        mDownY = mCurrY;
+        mPaletteSurfaceView.setSyncDrawInterface(mStrokeDrawView);
+        this.mStrokeDrawView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        this.mPaletteSurfaceView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        this.mFrame.removeAllViews();
+        this.mFrame.addView(mStrokeDrawView);
+        this.mFrame.addView(mPaletteSurfaceView);
+        this.addView(this.mFrame);
+        this.mFrame.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        mFrameManager = new FrameSizeManager();
     }
 
-    private void flush() {
-        if (mDrawHandler == null) {
-            return;
+    public void initDrawAreas() {
+        if (this.getWidth() > 0 && this.getHeight() > 0) {
+            label:
+            {
+                if (this.getWidth() <= this.getHeight()) {
+                    break label;
+                }
+                Log.e(TAG, "initDrawAreas --> 3 w = " + getWidth() + "\nh = " + getHeight());
+                mFrameManager.frameWidth = getWidth();
+                mFrameManager.frameHeight = getHeight();
+                initParams();
+                return;
+            }
         }
-        mDrawHandler.removeMessages(0);
-        mDrawHandler.sendEmptyMessage(0);
+        this.postDelayed(new Runnable() {
+            public void run() {
+                PaletteView.this.initDrawAreas();
+            }
+        }, 100L);
     }
 
-    /**
-     * set current stroke with.
-     * @param width
-     */
-    public void setStrokeWith(float width) {
-        this.mStrokeWidth = width;
+    private void initParams() {
+        LayoutParams params = (LayoutParams) this.mFrame.getLayoutParams();
+        mFrameManager.wholeWidth = (int)(getWidth() * 2);
+        params.width = mFrameManager.wholeWidth;
+        mFrameManager.wholeHeight = (int)(getHeight() * 2);
+        params.height = mFrameManager.wholeHeight;
+        this.mFrame.setLayoutParams(params);
+        mFrameManager.posX = - (mFrameManager.wholeWidth - mFrameManager.frameWidth) / 2;
+        mFrameManager.posY = - (mFrameManager.wholeHeight - mFrameManager.frameHeight) / 2;
+        this.mFrame.setX(mFrameManager.posX);
+        this.mFrame.setY(mFrameManager.posY);
+        mFrameManager.calculate();
+        Preferences.saveInt("screen_width", mFrameManager.wholeWidth);
+        Preferences.saveInt("screen_height", mFrameManager.wholeHeight);
     }
 
-    /**
-     * set current mode.
-     * @param mode
-     */
-    public void setDrawMode(DrawMode mode) {
+    private void setCurrentMode(DrawMode mode) {
         this.mCurrDrawMode = mode;
     }
 
-    public void setLineType(LineType type) {
-        this.mCurrentLineType = type;
+    private void setStrokeType(LineType type) {
+        this.mCurrStrokeType = type;
     }
 
-    /**
-     * get current mode.
-     *
-     */
-    public DrawMode getDrawMode() {
-        return this.mCurrDrawMode;
-    }
-
-    /**
-     * new page data
-     */
-    public void setPaletteData(PaletteData data) {
-        this.mPaletteData = data;
-        flush();
-    }
-
-    /**
-     * clear screen
-     */
     public void clear() {
-        if(mPaletteData == null) {
-            return;
-        }
-        mPaletteData.pathList.clear();
-        flush();
+        mStrokeDrawView.clear();
     }
 
     public void undo() {
+        mStrokeDrawView.undo();
     }
 
     public void redo() {
+        mStrokeDrawView.redo();
     }
 
-    class DrawHandler extends Handler {
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (mPaletteInterface.getCurrentMode() == DrawMode.MOVE) {
+            onTouchHandle(event);
+            return true;
+        }
+        return super.onTouchEvent(event);
 
-        public DrawHandler(Looper looper) {
-            super(looper);
+    }
+
+    private float mDownLastX;
+    private float mDownLastY;
+    private void onTouchHandle(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        int tt = (int) ((double) (this.mFrame.getY() + (y - this.mDownLastY)) + 0.5D);
+        int tl = (int) ((double) (this.mFrame.getX() + (x - this.mDownLastX)) + 0.5D);
+        int gh = this.mFrameManager.windowTop * 2;
+        int gw = this.mFrameManager.windowLeft * 2;
+        switch (event.getAction()) {
+            case 0:
+                this.mFrame.clearAnimation();
+                break;
+            case 1:
+                if (this.mFrameManager.windowTop < 0) {
+                    if (tt < gh) {
+                        tt = gh;
+                    } else if (tt > 0) {
+                        tt = 0;
+                    }
+                } else if (this.mFrameManager.windowTop > 0) {
+                    if (tt > gh) {
+                        tt = gh;
+                    } else if (tt < 0) {
+                        tt = 0;
+                    }
+                } else {
+                    tt = 0;
+                }
+
+                if (this.mFrameManager.windowLeft < 0) {
+                    if (tl < gw) {
+                        tl = gw;
+                    } else if (tl > 0) {
+                        tl = 0;
+                    }
+                } else if (this.mFrameManager.windowLeft > 0) {
+                    if (tl > gw) {
+                        tl = gw;
+                    } else if (tl < 0) {
+                        tl = 0;
+                    }
+                } else {
+                    tl = 0;
+                }
+
+                this.mFrame.animate().setDuration(200L).setInterpolator(new DecelerateInterpolator()).y((float) tt).x((float) tl);
+                break;
+            case 2:
+                this.mFrame.setY((float) tt);
+                this.mFrame.setX((float) tl);
         }
 
-        @Override
-        public void handleMessage(Message msg) {
-            if (!mIsDraw) {
-                return;
-            }
-            try {
-                long start = System.currentTimeMillis();
-                mCanvas = mSurfaceHolder.lockCanvas();
-                if (mCanvas == null) {
-                    return;
-                }
-                mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                for (int i = 0; i < mPaletteData.pathList.size(); i++) {
-                    PathEntity p = mPaletteData.pathList.get(i);
-                    if (p.type == LineType.DRAW || p.type == LineType.LINE || p.type == LineType.ERASER) {
-                        mCanvas.drawPath(p.path, p.paint);
-                    } else if(p.type == LineType.CIRCLE) {
-                        mCanvas.drawOval(p.rect, p.paint);
-                    } else if(p.type == LineType.RECTANGLE) {
-                        mCanvas.drawRect(p.rect, p.paint);
-                    }
-                }
-                /*for (PathEntity p : mPaletteData.pathList) {
-                    if (p.type == LineType.DRAW || p.type == LineType.LINE || p.type == LineType.ERASER) {
-                        mCanvas.drawPath(p.path, p.paint);
-                    } else if(p.type == LineType.CIRCLE) {
-                        mCanvas.drawOval(p.rect, p.paint);
-                    } else if(p.type == LineType.RECTANGLE) {
-                        mCanvas.drawRect(p.rect, p.paint);
-                    }
-                    *//*switch (p.type) {
-                        case DRAW:
-                        case LINE:
-                        case ERASER:
-                            mCanvas.drawPath(p.path, p.paint);
-                            break;
-                        case CIRCLE:
-                            mCanvas.drawOval(p.rect, p.paint);
-                            break;
-                        case RECTANGLE:
-                            mCanvas.drawRect(p.rect, p.paint);
-                            break;
-                    }*//*
-                }*/
-            } finally {
-                if (mCanvas != null) {
-                    mSurfaceHolder.unlockCanvasAndPost(mCanvas);
-                }
-            }
-        }
+        this.mDownLastX = x;
+        this.mDownLastY = y;
+
+    }
+
+    public interface PaletteInterface{
+
+        DrawMode getCurrentMode();
+
+        LineType getCurrStrokeType();
+
+        float getStrokeWidth();
+
+        int getStrokeColor();
     }
 }

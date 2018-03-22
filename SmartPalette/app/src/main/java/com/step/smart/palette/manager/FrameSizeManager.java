@@ -15,4 +15,12 @@ public class FrameSizeManager {
     //位置
     public int posX;
     public int posY;
+
+    public int windowLeft;
+    public int windowTop;
+
+    public void calculate() {
+        this.windowLeft = (this.frameWidth - this.wholeWidth) / 2;
+        this.windowTop = (this.frameHeight - this.wholeHeight) / 2;
+    }
 }
