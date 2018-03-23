@@ -162,6 +162,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 mCurrPathEntity.paint = new Paint(mPaint);
                 mCurrPathEntity.paint.setColor(mPaletteInterface.getStrokeColor());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
+                mCurrPathEntity.paint.setAlpha(mPaletteInterface.getStrokeAlpha());
                 mCurrPathEntity.path = new Path();
                 mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
                 break;
@@ -171,6 +172,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 mCurrPathEntity.rect = r;
                 mCurrPathEntity.paint = new Paint(mPaint);
                 mCurrPathEntity.paint.setColor(mPaletteInterface.getStrokeColor());
+                mCurrPathEntity.paint.setAlpha(mPaletteInterface.getStrokeAlpha());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
                 break;
             case ERASER:

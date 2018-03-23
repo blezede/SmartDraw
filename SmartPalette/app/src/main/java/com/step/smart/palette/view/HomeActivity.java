@@ -1,55 +1,68 @@
 package com.step.smart.palette.view;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
-
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.R;
 import com.step.smart.palette.widget.PaletteView;
-
-import java.util.List;
-
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
 public class HomeActivity extends AppCompatActivity implements PaletteView.PaletteInterface {
 
-    //@BindView(R.id.palette)
-    //PaletteView mPaletteView;
-    @BindViews ({R.id.clear, R.id.undo, R.id.redo, R.id.line_shape, R.id.eraser, R.id.move})
-    List<Button> mBtnList;
     @BindView(R.id.frame)
     PaletteView mPaletteView;
+    @BindView(R.id.tools)
+    LinearLayout mLinearLayout;
+    @BindView(R.id.save)
+    RelativeLayout mSaveView;
+    @BindView(R.id.stroke)
+    RelativeLayout mStrokeView;
+    @BindView(R.id.move)
+    RelativeLayout mMoveView;
+    @BindView(R.id.eraser)
+    RelativeLayout mEraserView;
+    @BindView(R.id.undo)
+    RelativeLayout mUndoView;
+    @BindView(R.id.redo)
+    RelativeLayout mRedoView;
 
     private int mColor = Color.BLACK;
     private float mStrokeWidth = 5f;
     private LineType mLineType = LineType.DRAW;
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
+    private LineType mStrokeLineType = LineType.DRAW;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         mPaletteView.initDrawAreas();
     }
 
-    private int count = 0;
-    @OnClick({R.id.clear, R.id.undo, R.id.redo, R.id.line_shape, R.id.eraser, R.id.move})
+    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo})
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.clear:
-                mPaletteView.clear();
+            case R.id.save:
                 break;
             case R.id.undo://撤销
                 mPaletteView.undo();
@@ -57,36 +70,30 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
             case R.id.redo://恢复
                 mPaletteView.redo();
                 break;
-            case R.id.line_shape:
-                mCurrDrawMode = DrawMode.EDIT;
-                if (count == 0) {
-                    //mPaletteView.setLineType(LineType.DRAW);
-                    mBtnList.get(3).setText("默认");
-                    mLineType = LineType.DRAW;
-                } else if (count == 1) {
-                    //mPaletteView.setLineType(LineType.LINE);
-                    mBtnList.get(3).setText("直线");
-                    mLineType = LineType.LINE;
-                } else if(count == 2) {
-                    //mPaletteView.setLineType(LineType.CIRCLE);
-                    mBtnList.get(3).setText("圆形");
-                    mLineType = LineType.CIRCLE;
-                } else if(count == 3) {
-                    //mPaletteView.setLineType(LineType.RECTANGLE);
-                    mBtnList.get(3).setText("矩形");
-                    mLineType = LineType.RECTANGLE;
-                    count = 0;
-                    break;
+            case R.id.stroke:
+                releaseSelStatus();
+                mStrokeView.setBackgroundResource(R.drawable.btn_sel_bg);
+                if (mCurrDrawMode != DrawMode.EDIT) {
+                    mCurrDrawMode = DrawMode.EDIT;
                 }
-                count ++;
+                mLineType = LineType.DRAW;
                 break;
             case R.id.eraser:
-                //mPaletteView.setLineType(LineType.ERASER);
+                releaseSelStatus();
+                mEraserView.setBackgroundResource(R.drawable.btn_sel_bg);
+                if (mCurrDrawMode != DrawMode.EDIT) {
+                    mCurrDrawMode = DrawMode.EDIT;
+                }
                 mLineType = LineType.ERASER;
-                Toast.makeText(getApplicationContext(), "eraser clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.move:
-                mCurrDrawMode = DrawMode.MOVE;
+                releaseSelStatus();
+                mMoveView.setBackgroundResource(R.drawable.btn_sel_bg);
+                if (mCurrDrawMode != DrawMode.MOVE) {
+                    mCurrDrawMode = DrawMode.MOVE;
+                } else {
+                    break;
+                }
                 break;
         }
     }
@@ -94,12 +101,6 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     @Override
     protected void onStart() {
         super.onStart();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("home", "w = " + mPaletteView.getWidth() + "\nh = " + mPaletteView.getHeight());
-            }
-        }, 5000);
     }
 
     @Override
@@ -120,5 +121,16 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     @Override
     public int getStrokeColor() {
         return mColor;
+    }
+
+    @Override
+    public int getStrokeAlpha() {
+        return 255;
+    }
+
+    private void releaseSelStatus() {
+        mStrokeView.setBackgroundColor(Color.TRANSPARENT);
+        mMoveView.setBackgroundColor(Color.TRANSPARENT);
+        mEraserView.setBackgroundColor(Color.TRANSPARENT);
     }
 }

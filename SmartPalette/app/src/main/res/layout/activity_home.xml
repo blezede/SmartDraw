@@ -9,65 +9,114 @@
         android:layout_height="match_parent"
         android:background="@android:color/white">
 
-    <com.step.smart.palette.widget.PaletteView
-        android:id="@+id/frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"/>
-
-    <HorizontalScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom">
+        <com.step.smart.palette.widget.PaletteView
+            android:id="@+id/frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white" />
 
         <LinearLayout
+            android:id="@+id/tools"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="20dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/suspend_icon_shape"
+            android:clipChildren="false"
+            android:elevation="10dp"
+            android:minHeight="40dp"
+            android:minWidth="40dp"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/clear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Clear"
-                android:textAllCaps="false" />
+            <RelativeLayout
+                android:id="@+id/save"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
 
-            <Button
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/save_bg_selector" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/stroke"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/btn_sel_bg"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/pen" />
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/move"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Move"
-                android:textAllCaps="false"/>
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
 
-            <Button
-                android:id="@+id/undo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Undo"
-                android:textAllCaps="false" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/move" />
+            </RelativeLayout>
 
-            <Button
-                android:id="@+id/redo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Redo"
-                android:textAllCaps="false" />
-
-            <Button
-                android:id="@+id/line_shape"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Line_Shape"
-                android:textAllCaps="false" />
-
-            <Button
+            <RelativeLayout
                 android:id="@+id/eraser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Eraser"
-                android:textAllCaps="false" />
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/eraser" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/undo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/undo_sel" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/redo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/redo_sel" />
+            </RelativeLayout>
         </LinearLayout>
-    </HorizontalScrollView>
-</FrameLayout>
+
+    </FrameLayout>
 
 </FrameLayout>

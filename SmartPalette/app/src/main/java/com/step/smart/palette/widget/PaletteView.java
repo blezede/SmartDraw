@@ -105,14 +105,6 @@ public class PaletteView extends FrameLayout {
         Preferences.saveInt("screen_height", mFrameManager.wholeHeight);
     }
 
-    private void setCurrentMode(DrawMode mode) {
-        this.mCurrDrawMode = mode;
-    }
-
-    private void setStrokeType(LineType type) {
-        this.mCurrStrokeType = type;
-    }
-
     public void clear() {
         mStrokeDrawView.clear();
     }
@@ -202,5 +194,7 @@ public class PaletteView extends FrameLayout {
         float getStrokeWidth();
 
         int getStrokeColor();
+
+        int getStrokeAlpha();//0 - 255;
     }
 }
