@@ -11,4 +11,20 @@
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.NoActionBar">
     </style>
 
+    <style name="popwindow_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popshow_anim</item>
+        <!-- 指定显示的动画xml -->
+
+        <item name="android:windowExitAnimation">@anim/pophide_anim</item>
+        <!-- 指定消失的动画xml -->
+    </style>
+
+    <style name="stroke_color_btn">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:button">@null</item>
+        <item name="android:background">@null</item>
+    </style>
 </resources>

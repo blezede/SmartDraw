@@ -140,6 +140,7 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
         mPaletteData.pathList.add(entity);
         //invalidate();
         flush();
+        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 
     @Override
@@ -152,6 +153,9 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
         }
         flush();
         //invalidate();
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
+        }
     }
 
     public void clear() {
@@ -170,6 +174,7 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
             mPaletteData.undoList.add(entity);
             reFlush();
         }
+        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 
     /**
@@ -182,5 +187,6 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
             mPaletteData.pathList.add(entity);
             reFlush();
         }
+        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 }

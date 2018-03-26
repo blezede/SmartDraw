@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="paint_popup_width">230dp</dimen>
+    <dimen name="paint_popup_height">230dp</dimen>
+
+    //tools
+    <dimen name="tools_h">40dp</dimen>
+    <dimen name="tools_min_w">40dp</dimen>
+    <dimen name="tools_min_h">40dp</dimen>
+    <dimen name="tools_margin">20dp</dimen>
+    <dimen name="tools_elevation">10dp</dimen>
+    <dimen name="tools_item_layout_w">30dp</dimen>
+    <dimen name="tools_item_layout_h">30dp</dimen>
+    <dimen name="tools_item_margin_s">10dp</dimen>
+    <dimen name="tools_item_margin_e">10dp</dimen>
+    <dimen name="tools_item_w">20dp</dimen>
+    <dimen name="tools_item_h">20dp</dimen>
+    <dimen name="tools_eraser_item_w">22dp</dimen>
+    <dimen name="tools_eraser_item_h">22dp</dimen>
+</resources>

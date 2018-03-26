@@ -6,112 +6,113 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:layout_height="match_parent">
 
         <com.step.smart.palette.widget.PaletteView
             android:id="@+id/frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white" />
+            android:background="#EEEEEE"/>
 
         <LinearLayout
             android:id="@+id/tools"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/tools_h"
             android:layout_gravity="bottom|start"
-            android:layout_margin="20dp"
-            android:layout_marginStart="10dp"
+            android:layout_margin="@dimen/tools_margin"
             android:background="@drawable/suspend_icon_shape"
             android:clipChildren="false"
-            android:elevation="10dp"
-            android:minHeight="40dp"
-            android:minWidth="40dp"
+            android:elevation="@dimen/tools_elevation"
+            android:minHeight="@dimen/tools_min_w"
+            android:minWidth="@dimen/tools_min_h"
             android:orientation="horizontal">
 
             <RelativeLayout
                 android:id="@+id/save"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="10dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_marginStart="@dimen/tools_item_margin_s"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="@dimen/tools_item_w"
+                    android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/save_bg_selector" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/stroke"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
                 android:background="@drawable/btn_sel_bg"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:id="@+id/stroke_img"
+                    android:layout_width="@dimen/tools_item_w"
+                    android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/pen" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/move"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="@dimen/tools_item_w"
+                    android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/move" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/eraser"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="@dimen/tools_eraser_item_w"
+                    android:layout_height="@dimen/tools_eraser_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/eraser" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/undo"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:id="@+id/undo_img"
+                    android:layout_width="@dimen/tools_item_w"
+                    android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/undo_sel" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/redo"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
+                android:layout_width="@dimen/tools_item_layout_w"
+                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_marginEnd="@dimen/tools_item_margin_e"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:id="@+id/redo_img"
+                    android:layout_width="@dimen/tools_item_w"
+                    android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
                     android:src="@drawable/redo_sel" />
             </RelativeLayout>

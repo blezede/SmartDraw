@@ -1,7 +1,6 @@
 package com.step.smart.palette.widget;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -9,7 +8,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
@@ -137,10 +135,10 @@ public class PaletteView extends FrameLayout {
         int gh = this.mFrameManager.windowTop * 2;
         int gw = this.mFrameManager.windowLeft * 2;
         switch (event.getAction()) {
-            case 0:
+            case MotionEvent.ACTION_DOWN:
                 this.mFrame.clearAnimation();
                 break;
-            case 1:
+            case MotionEvent.ACTION_UP:
                 if (this.mFrameManager.windowTop < 0) {
                     if (tt < gh) {
                         tt = gh;
@@ -175,7 +173,7 @@ public class PaletteView extends FrameLayout {
 
                 this.mFrame.animate().setDuration(200L).setInterpolator(new DecelerateInterpolator()).y((float) tt).x((float) tl);
                 break;
-            case 2:
+            case MotionEvent.ACTION_MOVE:
                 this.mFrame.setY((float) tt);
                 this.mFrame.setX((float) tl);
         }
@@ -196,5 +194,7 @@ public class PaletteView extends FrameLayout {
         int getStrokeColor();
 
         int getStrokeAlpha();//0 - 255;
+
+        void onUndoRedoCountChanged(int redo, int undo);
     }
 }
