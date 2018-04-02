@@ -6,132 +6,177 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="画笔类型"
-        android:textSize="11sp" />
+        android:layout_height="match_parent">
 
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:id="@+id/stroke_type_radio_group"
-        android:layout_height="30dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/stroke_type_rbtn_draw"
-            style="@style/stroke_color_btn"
-            android:checked="true"
-            android:drawableStart="@drawable/stroke_type_rbtn_draw" />
-
-
-        <RadioButton
-            android:id="@+id/stroke_type_rbtn_line"
-            style="@style/stroke_color_btn"
-            android:drawableStart="@drawable/stroke_type_rbtn_line" />
-
-        <RadioButton
-            android:id="@+id/stroke_type_rbtn_circle"
-            style="@style/stroke_color_btn"
-            android:drawableStart="@drawable/stroke_type_rbtn_circle" />
-
-        <RadioButton
-            android:id="@+id/stroke_type_rbtn_rectangle"
-            style="@style/stroke_color_btn"
-            android:drawableStart="@drawable/stroke_type_rbtn_rectangle" />
-
-    </RadioGroup>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="画笔大小"
-        android:textSize="11sp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_height="30dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >
-
-        <RelativeLayout
-            android:layout_width="30dp"
-            android:layout_height="30dp">
-            <ImageView
-                android:id="@+id/stroke_circle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:src="@drawable/stroke_color_rbtn_black" />
-        </RelativeLayout>
-
-        <SeekBar
-            android:id="@+id/stroke_seekbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="画笔颜色"
-        android:textSize="11sp"/>
-    <RadioGroup
-        android:id="@+id/stroke_color_radio_group"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_height="30dp">
-        <RadioButton
-            android:id="@+id/stroke_color_black"
-            style="@style/stroke_color_btn"
-            android:checked="true"
-            android:button="@drawable/stroke_color_rbtn_black"/>
-        <RadioButton
-            android:id="@+id/stroke_color_red"
-            style="@style/stroke_color_btn"
-            android:button="@drawable/stroke_color_rbtn_red" />
-        <RadioButton
-            android:id="@+id/stroke_color_green"
-            style="@style/stroke_color_btn"
-            android:button="@drawable/stroke_color_rbtn_green" />
-        <RadioButton
-            android:id="@+id/stroke_color_orange"
-            style="@style/stroke_color_btn"
-            android:button="@drawable/stroke_color_rbtn_orange" />
-        <RadioButton
-            android:id="@+id/stroke_color_blue"
-            style="@style/stroke_color_btn"
-            android:button="@drawable/stroke_color_rbtn_blue" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    </RadioGroup>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="画笔类型"
+                android:textSize="11sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="不透明度"
-        android:textSize="11sp"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_marginTop="5dp"
-        android:layout_height="30dp">
-        <RelativeLayout
-            android:layout_width="30dp"
-            android:layout_height="30dp">
-            <ImageView
-                android:id="@+id/stroke_alpha_circle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/stroke_color_rbtn_black" />
-        </RelativeLayout>
+            <RadioGroup
+                android:id="@+id/stroke_type_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <SeekBar
-            android:id="@+id/stroke_alpha_seekbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"/>
-    </LinearLayout>
+                <RadioButton
+                    android:id="@+id/stroke_type_rbtn_draw"
+                    style="@style/stroke_color_btn"
+                    android:checked="true"
+                    android:drawableStart="@drawable/stroke_type_rbtn_draw" />
 
+
+                <RadioButton
+                    android:id="@+id/stroke_type_rbtn_line"
+                    style="@style/stroke_color_btn"
+                    android:drawableStart="@drawable/stroke_type_rbtn_line" />
+
+                <RadioButton
+                    android:id="@+id/stroke_type_rbtn_circle"
+                    style="@style/stroke_color_btn"
+                    android:drawableStart="@drawable/stroke_type_rbtn_circle" />
+
+                <RadioButton
+                    android:id="@+id/stroke_type_rbtn_rectangle"
+                    style="@style/stroke_color_btn"
+                    android:drawableStart="@drawable/stroke_type_rbtn_rectangle" />
+
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="画笔大小"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/stroke_circle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/stroke_color_rbtn_black" />
+                </RelativeLayout>
+
+                <SeekBar
+                    android:id="@+id/stroke_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="画笔颜色"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioGroup
+                    android:id="@+id/stroke_color_radio_group"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/stroke_color_black"
+                        style="@style/stroke_color_btn"
+                        android:button="@drawable/stroke_color_rbtn_black"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/stroke_color_red"
+                        style="@style/stroke_color_btn"
+                        android:button="@drawable/stroke_color_rbtn_red" />
+
+                    <RadioButton
+                        android:id="@+id/stroke_color_green"
+                        style="@style/stroke_color_btn"
+                        android:button="@drawable/stroke_color_rbtn_green" />
+
+                    <RadioButton
+                        android:id="@+id/stroke_color_orange"
+                        style="@style/stroke_color_btn"
+                        android:button="@drawable/stroke_color_rbtn_orange" />
+
+                    <RadioButton
+                        android:id="@+id/stroke_color_blue"
+                        style="@style/stroke_color_btn"
+                        android:button="@drawable/stroke_color_rbtn_blue"
+                        android:visibility="gone" />
+
+                </RadioGroup>
+
+                <RelativeLayout
+                    android:id="@+id/color_sel"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/more_color_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_more" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="不透明度"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="5dp">
+
+                <RelativeLayout
+                    android:layout_width="30dp"
+                    android:layout_height="30dp">
+
+                    <ImageView
+                        android:id="@+id/stroke_alpha_circle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/stroke_color_rbtn_black" />
+                </RelativeLayout>
+
+                <SeekBar
+                    android:id="@+id/stroke_alpha_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

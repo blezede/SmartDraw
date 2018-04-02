@@ -1,6 +1,11 @@
 package com.step.smart.palette.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -12,7 +17,10 @@ import android.widget.FrameLayout;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.manager.FrameSizeManager;
+import com.step.smart.palette.utils.BitmapUtils;
 import com.step.smart.palette.utils.Preferences;
+
+import java.io.File;
 
 /**
  * Created by weflow on 2018/3/21.
@@ -115,6 +123,43 @@ public class PaletteView extends FrameLayout {
         mStrokeDrawView.redo();
     }
 
+    public boolean isEmpty() {
+        return mStrokeDrawView.isEmpty();
+    }
+
+    public void setBackgroundColor(int color) {
+        this.mFrame.setBackgroundColor(color);
+    }
+
+    public void screenShot(boolean wholeScreen) {
+        long start = System.currentTimeMillis();
+        String path = getContext().getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".png";
+        if (wholeScreen) {
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Canvas canvas = new Canvas(bmp);
+            this.mFrame.draw(canvas);
+            byte[] data = BitmapUtils.bitmap2Bytes(bmp, 100);
+            if (data.length > 0) {
+                boolean result = BitmapUtils.saveByteData(data, path);
+            }
+        } else {
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Canvas canvas = new Canvas(bmp);
+            this.mFrame.draw(canvas);
+            Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.ARGB_4444);
+            Canvas currCanvas = new Canvas(currBmp);
+            currCanvas.drawBitmap(bmp,
+                    new Rect((int)(Math.abs(this.mFrame.getX())), (int)Math.abs(this.mFrame.getY()), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameWidth), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameHeight)),
+                    new Rect(0, 0, this.mFrameManager.frameWidth, this.mFrameManager.frameHeight),
+                    null);
+            byte[] data = BitmapUtils.bitmap2Bytes(currBmp, 100);
+            if (data.length > 0) {
+                boolean result = BitmapUtils.saveByteData(data, path);
+            }
+        }
+        Log.e("PaletteView", "save finish --> " + (System.currentTimeMillis() - start));
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mPaletteInterface.getCurrentMode() == DrawMode.MOVE) {
@@ -196,5 +241,7 @@ public class PaletteView extends FrameLayout {
         int getStrokeAlpha();//0 - 255;
 
         void onUndoRedoCountChanged(int redo, int undo);
+
+        boolean isHighLighter();
     }
 }

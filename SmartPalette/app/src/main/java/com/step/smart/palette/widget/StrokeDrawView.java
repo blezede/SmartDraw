@@ -31,10 +31,7 @@ import java.util.List;
 public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawInterface {
 
     private PaletteView.PaletteInterface mPaletteInterface;
-    private Paint mPaint;
-    private Paint mEraserPaint;
     private PaletteData mPaletteData = new PaletteData();
-
 
     public StrokeDrawView(Context context) {
         this(context, null);
@@ -53,20 +50,6 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
         if (context instanceof PaletteView.PaletteInterface) {
             mPaletteInterface = (PaletteView.PaletteInterface) context;
         }
-        //画笔
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        mPaint.setStrokeWidth(5f);
-        mPaint.setColor(Color.BLACK);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setMaskFilter(new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID));
-
-        mEraserPaint = new Paint(mPaint);
-        mEraserPaint.setStrokeCap(Paint.Cap.ROUND);//线冒
-        mEraserPaint.setStrokeWidth(140f);
-        mEraserPaint.setColor(Color.WHITE);
-        mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//关键代码
     }
 
     @Override
@@ -188,5 +171,9 @@ public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawI
             reFlush();
         }
         mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
+    }
+
+    public boolean isEmpty() {
+        return mPaletteData.pathList.size() <= 0;
     }
 }

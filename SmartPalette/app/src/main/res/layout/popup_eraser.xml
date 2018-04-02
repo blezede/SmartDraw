@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/popup_bg"
+    android:gravity="center"
+    android:padding="5dp">
+
+    <RelativeLayout
+        android:id="@+id/rl_eraser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_eraser"
+            android:layout_width="25dp"
+            android:layout_height="28dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/eraser" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_eraser"
+            android:layout_centerHorizontal="true"
+            android:text="Eraser"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="10sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_clean"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/rl_eraser"
+        android:layout_toEndOf="@+id/rl_eraser"
+        android:layout_marginStart="20dp">
+
+        <ImageView
+            android:id="@+id/iv_clean"
+            android:layout_width="25dp"
+            android:layout_height="28dp"
+            android:layout_centerHorizontal="true"
+            android:padding="2dp"
+            android:src="@drawable/clear" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_clean"
+            android:layout_centerHorizontal="true"
+            android:text="Clear"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="10sp" />
+    </RelativeLayout>
+</RelativeLayout>

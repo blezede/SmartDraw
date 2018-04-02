@@ -4,15 +4,18 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Size;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -20,16 +23,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-
 import com.blankj.utilcode.util.SizeUtils;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.R;
+import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.widget.PaletteView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 
 public class HomeActivity extends AppCompatActivity implements PaletteView.PaletteInterface {
 
@@ -58,10 +60,11 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
 
     private int mPenColor = Color.BLACK;
     private float mStrokeWidth = 5f;
+    private int mStrokeAlpha = 255;
     private LineType mLineType = LineType.DRAW;
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
     private LineType mStrokeLineType = LineType.DRAW;
-    private PopupWindow mPaintPopupWindow;
+    private PopupWindow mPaintPopupWindow, mEraserPopupWindow, mColorPopupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +86,83 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
 
     private void initViews() {
         initPaintPop();
+        initEraserPopup();
+        initColorPop();
+        mPaletteView.setBackgroundColor(Color.parseColor("#EEEEEE"));
+        flushStrokeColor();
+    }
+
+    private void initColorPop() {
+        if (mColorPopupWindow != null) {
+            return;
+        }
+        //橡皮擦
+        GridView v = (GridView) LayoutInflater.from(this).inflate(R.layout.popup_colors, null);
+
+        v.setAdapter(new BaseAdapter() {
+            @Override
+            public int getCount() {
+                return ColorsUtil.sColorValues.length;
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return ColorsUtil.sColorValues[position];
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                ViewHolder holder;
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(HomeActivity.this).inflate(R.layout.color_item, null);
+                    holder = new ViewHolder();
+                    holder.color = convertView.findViewById(R.id.color);
+                    convertView.setTag(holder);
+                }
+                else {
+                    holder = (ViewHolder) convertView.getTag();
+                }
+                holder.color.setBackgroundColor(Color.parseColor(ColorsUtil.sColorValues[position]));
+                return convertView;
+            }
+
+            final class ViewHolder {
+                public View color;
+            }
+
+        });
+
+        //橡皮擦弹窗
+        mColorPopupWindow = new PopupWindow(this);
+        mColorPopupWindow.setContentView(v);//设置主体布局
+        mColorPopupWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.paint_popup_width));//宽度
+        //mPaintPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);//高度自适应
+        mColorPopupWindow.setHeight(getResources().getDimensionPixelSize(R.dimen.paint_popup_height));//高度
+        mColorPopupWindow.setFocusable(true);
+        mColorPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
+        mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
     }
 
     @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
+                if (mPaletteView.isEmpty()) {
+                    return;
+                }
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        mPaletteView.screenShot(true);
+                        return null;
+                    }
+                }.execute();
                 break;
             case R.id.undo://撤销
                 mPaletteView.undo();
@@ -98,21 +172,24 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 break;
             case R.id.stroke:
                 releaseSelStatus();
+                refreshStatus();
+                mStrokeView.setBackgroundResource(R.drawable.btn_sel_bg);
+                mLineType = mStrokeLineType;
                 if (mCurrDrawMode != DrawMode.EDIT) {
                     mCurrDrawMode = DrawMode.EDIT;
-                    mLineType = mStrokeLineType;
                     return;
                 }
                 showParamsPopupWindow(mStrokeView, 0);
-                mLineType = mStrokeLineType;
                 break;
             case R.id.eraser:
                 releaseSelStatus();
                 mEraserView.setBackgroundResource(R.drawable.btn_sel_bg);
-                if (mCurrDrawMode != DrawMode.EDIT) {
-                    mCurrDrawMode = DrawMode.EDIT;
-                }
                 mLineType = LineType.ERASER;
+                if (mCurrDrawMode != DrawMode.ERASER) {
+                    mCurrDrawMode = DrawMode.ERASER;
+                    return;
+                }
+                showParamsPopupWindow(mEraserView, 1);
                 break;
             case R.id.move:
                 releaseSelStatus();
@@ -122,6 +199,23 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 } else {
                     break;
                 }
+                break;
+        }
+    }
+
+    private void refreshStatus() {
+        switch (mStrokeLineType) {
+            case DRAW:
+                mStrokeImgView.setImageResource(R.drawable.ic_pen);
+                break;
+            case LINE:
+                mStrokeImgView.setImageResource(R.drawable.line);
+                break;
+            case CIRCLE:
+                mStrokeImgView.setImageResource(R.drawable.circle_line);
+                break;
+            case RECTANGLE:
+                mStrokeImgView.setImageResource(R.drawable.rect);
                 break;
         }
     }
@@ -153,7 +247,7 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
 
     @Override
     public int getStrokeAlpha() {
-        return 255;
+        return mStrokeAlpha;
     }
 
     @Override
@@ -179,20 +273,25 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     private void showParamsPopupWindow(View anchor, int type) {
         int[] location = new int[2];
         anchor.getLocationOnScreen(location);
-        //switch (type) {
-            //case PAINT_POPUP:
+        switch (type) {
+            case 0:
                 /*mPaintPopupWindow.showAtLocation(anchor,
                         Gravity.NO_GRAVITY, location[0] - mPaintPopupWindow.getWidth() / 2 + mPaintImageView.getWidth() / 2,
                         location[1] - mPaintPopupWindow.getHeight() - mPaintImageView.getHeight() / 2);*/
                 mPaintPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
-                //break;
+                break;
+            case 1:
+                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - SizeUtils.dp2px(5), Gravity.TOP);
+                break;
+            case 2:
+                mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
+                break;
 
-
-       // }
+        }
     }
 
-    private ImageView mPaintWidthCircle;
-    private SeekBar mPaintWidthSeekBar;
+    private ImageView mPaintWidthCircle, mPaintAlphaCircle;
+    private SeekBar mPaintWidthSeekBar, mPaintAlphaSeekBar;
     private RadioGroup mPaintColorRG;
 
     private void initPaintPop() {
@@ -203,15 +302,21 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         View v = LayoutInflater.from(this).inflate(R.layout.paint_popup_layout, (ViewGroup)null);
         //画笔弹窗布局
         //画笔大小
-        mPaintWidthCircle = (ImageView) (v.findViewById(R.id.stroke_circle));
-        mPaintWidthSeekBar = (SeekBar) (v.findViewById(R.id.stroke_seekbar));
+        mPaintWidthCircle = v.findViewById(R.id.stroke_circle);
+        mPaintWidthSeekBar = v.findViewById(R.id.stroke_seekbar);
         //画笔颜色
-        mPaintColorRG = (RadioGroup) v.findViewById(R.id.stroke_color_radio_group);
+        mPaintColorRG = v.findViewById(R.id.stroke_color_radio_group);
         RadioGroup mPaintTypeRG = v.findViewById(R.id.stroke_type_radio_group);
         RadioButton strokeDraw = v.findViewById(R.id.stroke_type_rbtn_draw);
         RadioButton strokeLine = v.findViewById(R.id.stroke_type_rbtn_line);
         RadioButton strokeCircle = v.findViewById(R.id.stroke_type_rbtn_circle);
         RadioButton strokeRect = v.findViewById(R.id.stroke_type_rbtn_rectangle);
+        View colorView = v.findViewById(R.id.color_sel);
+        colorView.setOnClickListener(mOnClickListener);
+
+        mPaintAlphaCircle = v.findViewById(R.id.stroke_alpha_circle);
+        mPaintAlphaSeekBar = v.findViewById(R.id.stroke_alpha_seekbar);
+
         //定义底部标签图片大小
         int px = SizeUtils.dp2px(25);
         Drawable drawableDraw = getResources().getDrawable(R.drawable.stroke_type_rbtn_draw);
@@ -259,6 +364,7 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                     mPenColor = res.getColor(R.color.color_blue_paint);
                 }
                 mPaintPopupWindow.dismiss();
+                flushStrokeColor();
             }
         });
 
@@ -268,23 +374,20 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 switch (checkedId) {
                     case R.id.stroke_type_rbtn_draw:
                         mStrokeLineType = LineType.DRAW;
-                        mStrokeImgView.setBackgroundResource(R.drawable.pen);
                         break;
                     case R.id.stroke_type_rbtn_line:
                         mStrokeLineType = LineType.LINE;
-                        mStrokeImgView.setBackgroundResource(R.drawable.line);
                         break;
                     case R.id.stroke_type_rbtn_circle:
                         mStrokeLineType = LineType.CIRCLE;
-                        mStrokeImgView.setBackgroundResource(R.drawable.circle_line);
                         break;
                     case R.id.stroke_type_rbtn_rectangle:
                         mStrokeLineType = LineType.RECTANGLE;
-                        mStrokeImgView.setBackgroundResource(R.drawable.rect);
                         break;
                 }
                 mLineType = mStrokeLineType;
                 mPaintPopupWindow.dismiss();
+                flushStrokeColor();
             }
         });
         //画笔宽度拖动条
@@ -293,18 +396,110 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
 
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
 
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,
                                           boolean fromUser) {
+                ViewGroup.LayoutParams params = mPaintWidthCircle.getLayoutParams();
+                params.height = 6 + (int)((16.0f / 100.0f) * progress);
+                params.width = 6 + (int)((16.0f / 100.0f) * progress);
+                mPaintWidthCircle.requestLayout();
+                mStrokeWidth = 3 + (int)((16.0f / 100.0f) * progress);
+            }
+        });
+        mPaintWidthSeekBar.setProgress(15);
+
+        mPaintAlphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float alpha = 0.3f + ((progress * 1f) / 100.0f) * 0.7f;
+                mPaintAlphaCircle.setAlpha(alpha);
+                mStrokeAlpha = (int) (255 * alpha);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
         });
-        mPaintWidthSeekBar.setProgress(30);
+        mPaintAlphaSeekBar.setProgress(100);
+    }
+
+    private void initEraserPopup() {
+        if (mEraserPopupWindow != null) {
+            return;
+        }
+        //橡皮擦
+        View v = LayoutInflater.from(this).inflate(R.layout.popup_eraser, null);
+        View eraser = v.findViewById(R.id.rl_eraser);
+        View clean = v.findViewById(R.id.rl_clean);
+        eraser.setOnClickListener(mOnClickListener);
+        clean.setOnClickListener(mOnClickListener);
+        //橡皮擦弹窗
+        mEraserPopupWindow = new PopupWindow(this);
+        mEraserPopupWindow.setContentView(v);//设置主体布局
+        mEraserPopupWindow.setWidth(SizeUtils.dp2px(100f));//宽度200dp
+//        eraserPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);//高度自适应
+        mEraserPopupWindow.setHeight(SizeUtils.dp2px(55f));//高度自适应
+        mEraserPopupWindow.setFocusable(true);
+        mEraserPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
+        mEraserPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
+    }
+
+    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.rl_eraser:
+                    mEraserPopupWindow.dismiss();
+                    break;
+                case R.id.rl_clean:
+                    mPaletteView.clear();
+                    mEraserPopupWindow.dismiss();
+                    break;
+                case R.id.color_sel:
+                    if (mPaintPopupWindow != null) {
+                        mPaintPopupWindow.dismiss();
+                    }
+                    showParamsPopupWindow(mStrokeView, 2);
+                    break;
+            }
+        }
+    };
+
+    private void flushStrokeColor() {
+        VectorDrawableCompat vectorDrawableCompat = null;
+        switch (mStrokeLineType) {
+            case DRAW:
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_pen,getTheme());
+                break;
+            case CIRCLE:
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_circle,getTheme());
+                break;
+            case LINE:
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_line,getTheme());
+                break;
+            case RECTANGLE:
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_rect,getTheme());
+                break;
+        }
+        if (vectorDrawableCompat != null) {
+            vectorDrawableCompat.setTint(mPenColor);
+            mStrokeImgView.setImageDrawable(vectorDrawableCompat);
+        }
+    }
+
+    @Override
+    public boolean isHighLighter() {
+        return false;
     }
 }

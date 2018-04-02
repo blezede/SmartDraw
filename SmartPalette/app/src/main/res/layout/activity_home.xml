@@ -55,7 +55,7 @@
                     android:layout_width="@dimen/tools_item_w"
                     android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/pen" />
+                    android:src="@drawable/ic_pen" />
             </RelativeLayout>
 
             <RelativeLayout

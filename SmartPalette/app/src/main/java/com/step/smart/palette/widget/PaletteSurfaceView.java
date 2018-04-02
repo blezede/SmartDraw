@@ -50,6 +50,9 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private LineType mCurrentLineType = LineType.DRAW;
     private int mColor = Color.BLACK;
     private PaletteView.PaletteInterface mPaletteInterface;
+    private BlurMaskFilter mDefaultBlur = new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID);
+    private BlurMaskFilter mHighLightBlur = new BlurMaskFilter(30F, BlurMaskFilter.Blur.OUTER);
+
 
     public PaletteSurfaceView(Context context) {
         this(context, null);
@@ -163,6 +166,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 mCurrPathEntity.paint.setColor(mPaletteInterface.getStrokeColor());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
                 mCurrPathEntity.paint.setAlpha(mPaletteInterface.getStrokeAlpha());
+                mCurrPathEntity.paint.setMaskFilter(mPaletteInterface.isHighLighter() ? mHighLightBlur : mDefaultBlur);
                 mCurrPathEntity.path = new Path();
                 mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
                 break;
@@ -174,6 +178,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 mCurrPathEntity.paint.setColor(mPaletteInterface.getStrokeColor());
                 mCurrPathEntity.paint.setAlpha(mPaletteInterface.getStrokeAlpha());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
+                mCurrPathEntity.paint.setMaskFilter(mPaletteInterface.isHighLighter() ? mHighLightBlur : mDefaultBlur);
                 break;
             case ERASER:
                 mCurrPathEntity.paint = new Paint(mEraserPaint);
