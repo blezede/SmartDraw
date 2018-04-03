@@ -5,14 +5,14 @@
             <item>
                 <shape android:shape="oval">
                     <solid android:color="@android:color/holo_red_light" />
-                    <size android:width="20dp" android:height="20dp" />
+                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
                 </shape>
             </item>
-            <item android:bottom="2dp" android:left="2dp" android:right="2sp" android:top="2dp">
+            <item android:bottom="@dimen/paint_col_ltrb" android:left="@dimen/paint_col_ltrb" android:right="@dimen/paint_col_ltrb" android:top="@dimen/paint_col_ltrb">
                 <shape android:shape="oval">
 
-                    <stroke android:width="2dp" android:color="@android:color/white" />
-                    <size android:width="20dp" android:height="20dp" />
+                    <stroke android:width="@dimen/paint_col_ltrb" android:color="@android:color/white" />
+                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
                 </shape>
             </item>
         </layer-list>
@@ -22,7 +22,7 @@
             <item>
                 <shape android:shape="oval">
                     <solid android:color="@android:color/holo_red_light" />
-                    <size android:width="20dp" android:height="20dp" />
+                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
                 </shape>
             </item>
         </layer-list>

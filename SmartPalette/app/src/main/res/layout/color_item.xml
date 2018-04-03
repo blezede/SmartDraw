@@ -8,7 +8,7 @@
         android:id="@+id/color"
         android:layout_margin="1dp"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/color_item_h"
         app:cardCornerRadius="5dp"
         android:background="@android:color/transparent"
         />

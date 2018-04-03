@@ -32,10 +32,9 @@ public class PaletteView extends FrameLayout {
     private PaletteSurfaceView mPaletteSurfaceView;
     private StrokeDrawView mStrokeDrawView;
     private FrameSizeManager mFrameManager;
-    private DrawMode mCurrDrawMode = DrawMode.EDIT;
-    private LineType mCurrStrokeType = LineType.DRAW;
     private PaletteInterface mPaletteInterface;
     private FrameLayout mFrame;
+    private PaletteStrokeView mPaletteStrokeView;
 
     public PaletteView(@NonNull Context context) {
         this(context, null);
@@ -57,18 +56,24 @@ public class PaletteView extends FrameLayout {
         if (mStrokeDrawView == null) {
             mStrokeDrawView = new StrokeDrawView(context);
         }
-        if (mPaletteSurfaceView == null) {
+        /*if (mPaletteSurfaceView == null) {
             mPaletteSurfaceView = new PaletteSurfaceView(context);
+        }*/
+        if (mPaletteStrokeView == null) {
+            mPaletteStrokeView = new PaletteStrokeView(context);
         }
         if (mFrame == null) {
             mFrame = new FrameLayout(context);
         }
-        mPaletteSurfaceView.setSyncDrawInterface(mStrokeDrawView);
+        //mPaletteSurfaceView.setSyncDrawInterface(mStrokeDrawView);
+        mPaletteStrokeView.setSyncDrawInterface(mStrokeDrawView);
         this.mStrokeDrawView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        this.mPaletteSurfaceView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        //this.mPaletteSurfaceView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        this.mPaletteStrokeView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         this.mFrame.removeAllViews();
         this.mFrame.addView(mStrokeDrawView);
-        this.mFrame.addView(mPaletteSurfaceView);
+        //this.mFrame.addView(mPaletteSurfaceView);
+        this.mFrame.addView(mPaletteStrokeView);
         this.addView(this.mFrame);
         this.mFrame.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         mFrameManager = new FrameSizeManager();

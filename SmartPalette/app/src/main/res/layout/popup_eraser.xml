@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/popup_bg"
     android:gravity="center"
-    android:padding="5dp">
+    android:padding="@dimen/eraser_popup_padding">
 
     <RelativeLayout
         android:id="@+id/rl_eraser"
@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/iv_eraser"
-            android:layout_width="25dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/eraser_item_w"
+            android:layout_height="@dimen/eraser_item_h"
             android:layout_centerHorizontal="true"
             android:src="@drawable/eraser" />
 
@@ -23,10 +23,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_eraser"
             android:layout_centerHorizontal="true"
-            android:text="Eraser"
+            android:text="@string/eraser_era"
             android:maxLines="1"
             android:textColor="@android:color/white"
-            android:textSize="10sp" />
+            android:textSize="@dimen/eraser_text_size" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -35,14 +35,14 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/rl_eraser"
         android:layout_toEndOf="@+id/rl_eraser"
-        android:layout_marginStart="20dp">
+        android:layout_marginStart="@dimen/eraser_item_con_ms">
 
         <ImageView
             android:id="@+id/iv_clean"
-            android:layout_width="25dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/eraser_item_w"
+            android:layout_height="@dimen/eraser_item_h"
             android:layout_centerHorizontal="true"
-            android:padding="2dp"
+            android:padding="@dimen/eraser_item_padding"
             android:src="@drawable/clear" />
 
         <TextView
@@ -50,9 +50,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_clean"
             android:layout_centerHorizontal="true"
-            android:text="Clear"
+            android:text="@string/eraser_clear"
             android:maxLines="1"
             android:textColor="@android:color/white"
-            android:textSize="10sp" />
+            android:textSize="@dimen/eraser_text_size" />
     </RelativeLayout>
 </RelativeLayout>

@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_margin="15dp"
-    android:scrollbars="none"
-    android:layout_column="4"
-    android:listSelector="@null"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:background="@drawable/popup_bg">
+
+    <GridView
+        android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/color_popup_gv_m"
+        android:listSelector="@null"
+        android:numColumns="3"
+        android:scrollbars="none" />
+
+</LinearLayout>

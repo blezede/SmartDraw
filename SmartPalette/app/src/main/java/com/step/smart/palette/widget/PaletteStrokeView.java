@@ -9,35 +9,29 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.View;
 
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
-import com.step.smart.palette.entity.PathEntity;
 import com.step.smart.palette.entity.PaletteData;
+import com.step.smart.palette.entity.PathEntity;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by weflow on 2018/3/19.
+ * Created by weflow on 2018/4/3.
  */
 
-public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+public class PaletteStrokeView extends View {
 
-    private SurfaceHolder mSurfaceHolder;
-    private HandlerThread mDrawThread;
-    private DrawHandler mDrawHandler;
     private Paint mPaint;
     private Paint mEraserPaint;
     private Canvas mCanvas;
@@ -51,18 +45,16 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private int mColor = Color.BLACK;
     private PaletteView.PaletteInterface mPaletteInterface;
     private BlurMaskFilter mDefaultBlur = new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID);
-    private BlurMaskFilter mHighLightBlur = new BlurMaskFilter(30F, BlurMaskFilter.Blur.OUTER);
-
-
-    public PaletteSurfaceView(Context context) {
+    private BlurMaskFilter mHighLightBlur = new BlurMaskFilter(10F, BlurMaskFilter.Blur.OUTER);
+    public PaletteStrokeView(Context context) {
         this(context, null);
     }
 
-    public PaletteSurfaceView(Context context, AttributeSet attrs) {
+    public PaletteStrokeView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public PaletteSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PaletteStrokeView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         _init(context);
     }
@@ -71,13 +63,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         if (context instanceof PaletteView.PaletteInterface) {
             mPaletteInterface = (PaletteView.PaletteInterface) context;
         }
-        mSurfaceHolder = getHolder();
-        setZOrderOnTop(true);
-        mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
-        mSurfaceHolder.addCallback(this);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        this.setKeepScreenOn(true);
+        this.setBackgroundColor(Color.TRANSPARENT);
 
         //画笔
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -87,7 +73,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setXfermode(null);
-        mPaint.setMaskFilter(new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID));
+        mPaint.setMaskFilter(mDefaultBlur);
 
         mEraserPaint = new Paint();
         mEraserPaint.setStyle(Paint.Style.STROKE);
@@ -96,27 +82,6 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         mEraserPaint.setStrokeWidth(mEraserWidth);
         mEraserPaint.setColor(Color.WHITE);
         mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//关键代码
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        this.mIsDraw = true;
-        this.mDrawThread = new HandlerThread("SurfaceView_Draw");
-        this.mDrawThread.setPriority(Thread.MAX_PRIORITY);
-        this.mDrawThread.start();
-        this.mDrawHandler = new DrawHandler(mDrawThread.getLooper());
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        this.mIsDraw = false;
-        this.mDrawThread.quitSafely();
-        this.mDrawHandler = null;
     }
 
     private float mOriginalX;
@@ -140,11 +105,11 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 break;
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
-                flush();
+                flush((int) mCurrX, (int) mCurrY);
                 break;
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
-                flush();
+                flush((int) mCurrX, (int) mCurrY);
                 break;
             case MotionEvent.ACTION_UP:
                 onTouchUp();
@@ -222,76 +187,33 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 mSyncDrawInterface.syncStroke(mCurrPathEntity);
             }
         }
+        clear();
+    }
+
+    private void flush(int x, int y) {
+        postInvalidate(x - 1, y - 1, x + 1, y + 1);
+    }
+
+    public void clear() {
         mDownX = mCurrX = 0;
         mDownY = mCurrY = 0;
         mCurrPathEntity = null;
-        clear();
-        Log.e("SurfaceView", "w = " + getWidth() + ", h = " + getHeight());
-    }
-
-    private void flush() {
-        if (mDrawHandler == null) {
-            return;
-        }
-        mDrawHandler.removeMessages(0);
-        mDrawHandler.sendEmptyMessage(0);
-    }
-
-    /**
-     * new page data
-     */
-    public void setPaletteData(PaletteData data) {
-        this.mPaletteData = data;
-        flush();
-    }
-
-    /**
-     * clear screen
-     */
-    public void clear() {
         if (mPaletteData == null) {
             return;
         }
         mPaletteData.pathList.clear();
-        flush();
+        invalidate();
     }
 
     @Override
-    public void run() {
-        flush();
-    }
-
-    class DrawHandler extends Handler {
-
-        public DrawHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (!mIsDraw) {
-                return;
-            }
-            try {
-                long start = System.currentTimeMillis();
-                mCanvas = mSurfaceHolder.lockCanvas();
-                if (mCanvas == null) {
-                    return;
-                }
-                mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                if (mCurrPathEntity != null) {
-                    if (mCurrPathEntity.type == LineType.DRAW || mCurrPathEntity.type == LineType.LINE) {
-                        mCanvas.drawPath(mCurrPathEntity.path, mCurrPathEntity.paint);
-                    } else if (mCurrPathEntity.type == LineType.CIRCLE) {
-                        mCanvas.drawOval(mCurrPathEntity.rect, mCurrPathEntity.paint);
-                    } else if (mCurrPathEntity.type == LineType.RECTANGLE) {
-                        mCanvas.drawRect(mCurrPathEntity.rect, mCurrPathEntity.paint);
-                    }
-                }
-            } finally {
-                if (mCanvas != null) {
-                    mSurfaceHolder.unlockCanvasAndPost(mCanvas);
-                }
+    protected void onDraw(Canvas canvas) {
+        if (mCurrPathEntity != null) {
+            if (mCurrPathEntity.type == LineType.DRAW || mCurrPathEntity.type == LineType.LINE) {
+                canvas.drawPath(mCurrPathEntity.path, mCurrPathEntity.paint);
+            } else if (mCurrPathEntity.type == LineType.CIRCLE) {
+                canvas.drawOval(mCurrPathEntity.rect, mCurrPathEntity.paint);
+            } else if (mCurrPathEntity.type == LineType.RECTANGLE) {
+                canvas.drawRect(mCurrPathEntity.rect, mCurrPathEntity.paint);
             }
         }
     }

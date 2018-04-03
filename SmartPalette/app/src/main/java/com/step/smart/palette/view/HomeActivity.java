@@ -7,13 +7,16 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -97,9 +100,10 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
             return;
         }
         //橡皮擦
-        GridView v = (GridView) LayoutInflater.from(this).inflate(R.layout.popup_colors, null);
+        View v = LayoutInflater.from(this).inflate(R.layout.popup_colors, null);
 
-        v.setAdapter(new BaseAdapter() {
+        GridView grid = v.findViewById(R.id.grid);
+        grid.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {
                 return ColorsUtil.sColorValues.length;
@@ -137,6 +141,23 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
 
         });
 
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                mPaintColorRG.clearCheck();
+                if (mColorPopupWindow != null) {
+                    mColorPopupWindow.dismiss();
+                }
+                new Handler(getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPenColor = Color.parseColor(ColorsUtil.sColorValues[position]);
+                        flushStrokeColor();
+                    }
+                }, 100);
+            }
+        });
+
         //橡皮擦弹窗
         mColorPopupWindow = new PopupWindow(this);
         mColorPopupWindow.setContentView(v);//设置主体布局
@@ -145,7 +166,7 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         mColorPopupWindow.setHeight(getResources().getDimensionPixelSize(R.dimen.paint_popup_height));//高度
         mColorPopupWindow.setFocusable(true);
         mColorPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
-        mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
+        //mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
     }
 
     @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo})
@@ -172,7 +193,7 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 break;
             case R.id.stroke:
                 releaseSelStatus();
-                refreshStatus();
+                flushStrokeColor();
                 mStrokeView.setBackgroundResource(R.drawable.btn_sel_bg);
                 mLineType = mStrokeLineType;
                 if (mCurrDrawMode != DrawMode.EDIT) {
@@ -199,23 +220,6 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 } else {
                     break;
                 }
-                break;
-        }
-    }
-
-    private void refreshStatus() {
-        switch (mStrokeLineType) {
-            case DRAW:
-                mStrokeImgView.setImageResource(R.drawable.ic_pen);
-                break;
-            case LINE:
-                mStrokeImgView.setImageResource(R.drawable.line);
-                break;
-            case CIRCLE:
-                mStrokeImgView.setImageResource(R.drawable.circle_line);
-                break;
-            case RECTANGLE:
-                mStrokeImgView.setImageResource(R.drawable.rect);
                 break;
         }
     }
@@ -278,19 +282,21 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                 /*mPaintPopupWindow.showAtLocation(anchor,
                         Gravity.NO_GRAVITY, location[0] - mPaintPopupWindow.getWidth() / 2 + mPaintImageView.getWidth() / 2,
                         location[1] - mPaintPopupWindow.getHeight() - mPaintImageView.getHeight() / 2);*/
-                mPaintPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
+
+                mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
                 break;
             case 1:
-                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - SizeUtils.dp2px(5), Gravity.TOP);
+                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
                 break;
             case 2:
-                mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
+                //mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
+                mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
                 break;
 
         }
     }
 
-    private ImageView mPaintWidthCircle, mPaintAlphaCircle;
+    private ImageView mPaintWidthCircle, mPaintAlphaCircle, mMoreColorImg;
     private SeekBar mPaintWidthSeekBar, mPaintAlphaSeekBar;
     private RadioGroup mPaintColorRG;
 
@@ -312,34 +318,36 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         RadioButton strokeCircle = v.findViewById(R.id.stroke_type_rbtn_circle);
         RadioButton strokeRect = v.findViewById(R.id.stroke_type_rbtn_rectangle);
         View colorView = v.findViewById(R.id.color_sel);
+        mMoreColorImg = v.findViewById(R.id.more_color_icon);
         colorView.setOnClickListener(mOnClickListener);
 
         mPaintAlphaCircle = v.findViewById(R.id.stroke_alpha_circle);
         mPaintAlphaSeekBar = v.findViewById(R.id.stroke_alpha_seekbar);
 
         //定义底部标签图片大小
-        int px = SizeUtils.dp2px(25);
-        Drawable drawableDraw = getResources().getDrawable(R.drawable.stroke_type_rbtn_draw);
-        drawableDraw.setBounds(0, 0, px, px);//第一0是距左右边距离，第二0是距上下边距离，第三69长度,第四宽度
+        Resources res = getResources();
+        int size = (int) res.getDimension(R.dimen.paint_col_img_size);
+        Drawable drawableDraw = res.getDrawable(R.drawable.stroke_type_rbtn_draw);
+        drawableDraw.setBounds(0, 0, size, size);//第一0是距左右边距离，第二0是距上下边距离，第三69长度,第四宽度
         strokeDraw.setCompoundDrawables(drawableDraw, null, null, null);//只放上面
 
-        Drawable drawableLine = getResources().getDrawable(R.drawable.stroke_type_rbtn_line);
-        drawableLine.setBounds(0, 0, px, px);
+        Drawable drawableLine = res.getDrawable(R.drawable.stroke_type_rbtn_line);
+        drawableLine.setBounds(0, 0, size, size);
         strokeLine.setCompoundDrawables(drawableLine, null, null, null);
 
-        Drawable drawableCircle = getResources().getDrawable(R.drawable.stroke_type_rbtn_circle);
-        drawableCircle.setBounds(0, 0, px, px);
+        Drawable drawableCircle = res.getDrawable(R.drawable.stroke_type_rbtn_circle);
+        drawableCircle.setBounds(0, 0, size, size);
         strokeCircle.setCompoundDrawables(drawableCircle, null, null, null);
 
-        Drawable drawableRect = getResources().getDrawable(R.drawable.stroke_type_rbtn_rectangle);
-        drawableRect.setBounds(0, 0, px, px);
+        Drawable drawableRect = res.getDrawable(R.drawable.stroke_type_rbtn_rectangle);
+        drawableRect.setBounds(0, 0, size, size);
         strokeRect.setCompoundDrawables(drawableRect, null, null, null);
         mPaintPopupWindow = new PopupWindow(this);
         mPaintPopupWindow.setContentView(v);//设置主体布局
         mPaintPopupWindow.getContentView().measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        mPaintPopupWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.paint_popup_width));//宽度
+        mPaintPopupWindow.setWidth(res.getDimensionPixelSize(R.dimen.paint_popup_width));//宽度
         //mPaintPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);//高度自适应
-        mPaintPopupWindow.setHeight(getResources().getDimensionPixelSize(R.dimen.paint_popup_height));//高度
+        mPaintPopupWindow.setHeight(res.getDimensionPixelSize(R.dimen.paint_popup_height));//高度
         mPaintPopupWindow.setFocusable(true);
         mPaintPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
         mPaintPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
@@ -495,6 +503,15 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         if (vectorDrawableCompat != null) {
             vectorDrawableCompat.setTint(mPenColor);
             mStrokeImgView.setImageDrawable(vectorDrawableCompat);
+        }
+        flushMoreIconColor();
+    }
+
+    private void flushMoreIconColor() {
+        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_more,getTheme());
+        vectorCompat.setTint(mPenColor);
+        if (mMoreColorImg != null) {
+            mMoreColorImg.setImageDrawable(vectorCompat);
         }
     }
 

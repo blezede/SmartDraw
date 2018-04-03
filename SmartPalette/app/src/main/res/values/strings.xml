@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">SmartPelette</string>
+    <string name="app_name">SmartPen</string>
+
+    <string name="paint_type">Type</string>
+    <string name="paint_size">Size</string>
+    <string name="paint_color">Color</string>
+    <string name="paint_alpha">Opacity</string>
+    <string name="eraser_era">Eraser</string>
+    <string name="eraser_clear">Clean</string>
 </resources>

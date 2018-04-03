@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/popup_bg"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/paint_popup_padding">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -18,13 +18,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="画笔类型"
+                android:text="@string/paint_type"
                 android:textSize="11sp" />
 
             <RadioGroup
                 android:id="@+id/stroke_type_radio_group"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="@dimen/paint_type_rg_h"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -55,20 +55,20 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="画笔大小"
-                android:textSize="11sp" />
+                android:text="@string/paint_size"
+                android:textSize="@dimen/paint_text_size" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
+                android:layout_height="@dimen/paint_size_con_h"
+                android:layout_marginBottom="@dimen/paint_size_con_mb"
+                android:layout_marginTop="@dimen/paint_size_con_mt"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <RelativeLayout
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="@dimen/paint_size_cir"
+                    android:layout_height="@dimen/paint_size_cir"
                     android:gravity="center">
 
                     <ImageView
@@ -88,8 +88,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="画笔颜色"
-                android:textSize="11sp" />
+                android:text="@string/paint_color"
+                android:textSize="@dimen/paint_text_size" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -99,7 +99,7 @@
                 <RadioGroup
                     android:id="@+id/stroke_color_radio_group"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/paint_col_rg_h"
                     android:layout_weight="4"
                     android:gravity="center"
                     android:orientation="horizontal">
@@ -141,8 +141,8 @@
 
                     <ImageView
                         android:id="@+id/more_color_icon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/paint_col_sel_palette"
+                        android:layout_height="@dimen/paint_col_sel_palette"
                         android:layout_centerVertical="true"
                         android:src="@drawable/ic_more" />
                 </RelativeLayout>
@@ -151,17 +151,17 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="不透明度"
-                android:textSize="11sp" />
+                android:text="@string/paint_alpha"
+                android:textSize="@dimen/paint_text_size" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginTop="5dp">
+                android:layout_height="@dimen/paint_alpha_cir"
+                android:layout_marginTop="@dimen/paint_alpha_cir_con_mt">
 
                 <RelativeLayout
-                    android:layout_width="30dp"
-                    android:layout_height="30dp">
+                    android:layout_width="@dimen/paint_alpha_cir"
+                    android:layout_height="@dimen/paint_alpha_cir">
 
                     <ImageView
                         android:id="@+id/stroke_alpha_circle"

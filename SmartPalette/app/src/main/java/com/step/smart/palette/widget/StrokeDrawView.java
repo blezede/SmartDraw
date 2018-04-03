@@ -28,7 +28,7 @@ import java.util.List;
  * Created by weflow on 2018/3/21.
  */
 
-public class StrokeDrawView extends View implements PaletteSurfaceView.SyncDrawInterface {
+public class StrokeDrawView extends View implements /*PaletteSurfaceView*/PaletteStrokeView.SyncDrawInterface {
 
     private PaletteView.PaletteInterface mPaletteInterface;
     private PaletteData mPaletteData = new PaletteData();

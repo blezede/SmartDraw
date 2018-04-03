@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">智慧笔</string>
+
+    <string name="paint_type">画笔类型</string>
+    <string name="paint_size">画笔大小</string>
+    <string name="paint_color">画笔颜色</string>
+    <string name="paint_alpha">不透明度</string>
+    <string name="eraser_era">橡皮擦</string>
+    <string name="eraser_clear">清屏</string>
+</resources>
