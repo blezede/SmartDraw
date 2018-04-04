@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.step.smart.palette.Constant.LineType;
+import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.entity.PaletteData;
 import com.step.smart.palette.entity.PathEntity;
 import com.step.smart.palette.utils.Preferences;
@@ -74,8 +75,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
 
     public void initBuffer() {
         if (mBufferBitmap == null) {
-            int screen_width = Preferences.getInt("screen_width", getWidth());
-            int screen_height = Preferences.getInt("screen_height", getHeight());
+            int screen_width = Preferences.getInt(PreferenceConstant.SCREEN_WIDTH, getWidth());
+            int screen_height = Preferences.getInt(PreferenceConstant.SCREEN_HEIGHT, getHeight());
             mBufferBitmap = Bitmap.createBitmap(screen_width, screen_height, Bitmap.Config.ARGB_8888);
             mBufferCanvas = new Canvas(mBufferBitmap);
         }

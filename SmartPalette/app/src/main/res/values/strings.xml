@@ -7,4 +7,10 @@
     <string name="paint_alpha">Opacity</string>
     <string name="eraser_era">Eraser</string>
     <string name="eraser_clear">Clean</string>
+
+    <string name="portrait">Portrait</string>
+    <string name="land">Landscape</string>
+    <string name="start_draw">Start Painting</string>
+    <string name="screen_choose">Please select a screen orientation:</string>
+    <string name="screen_choose_tip">Please select a screen orientation first.</string>
 </resources>

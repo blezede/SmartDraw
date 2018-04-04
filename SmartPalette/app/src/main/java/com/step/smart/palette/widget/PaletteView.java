@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
+import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.manager.FrameSizeManager;
 import com.step.smart.palette.utils.BitmapUtils;
 import com.step.smart.palette.utils.Preferences;
@@ -28,7 +29,7 @@ import java.io.File;
 
 public class PaletteView extends FrameLayout {
 
-    private static final String TAG = "PaletteFrameLayout";
+    private static final String TAG = "PaletteView";
     private PaletteSurfaceView mPaletteSurfaceView;
     private StrokeDrawView mStrokeDrawView;
     private FrameSizeManager mFrameManager;
@@ -86,7 +87,6 @@ public class PaletteView extends FrameLayout {
                 if (this.getWidth() <= this.getHeight()) {
                     break label;
                 }
-                Log.e(TAG, "initDrawAreas --> 3 w = " + getWidth() + "\nh = " + getHeight());
                 mFrameManager.frameWidth = getWidth();
                 mFrameManager.frameHeight = getHeight();
                 initParams();
@@ -112,8 +112,9 @@ public class PaletteView extends FrameLayout {
         this.mFrame.setX(mFrameManager.posX);
         this.mFrame.setY(mFrameManager.posY);
         mFrameManager.calculate();
-        Preferences.saveInt("screen_width", mFrameManager.wholeWidth);
-        Preferences.saveInt("screen_height", mFrameManager.wholeHeight);
+        Preferences.saveInt(PreferenceConstant.SCREEN_WIDTH, mFrameManager.wholeWidth);
+        Preferences.saveInt(PreferenceConstant.SCREEN_HEIGHT, mFrameManager.wholeHeight);
+        Log.e(TAG, "initParams --> " + "\nwidth = " + mFrameManager.frameWidth + "\nheight = " + mFrameManager.frameHeight + "\nscreen_width = " + mFrameManager.wholeWidth + "\nscreen_height = " + mFrameManager.wholeHeight);
     }
 
     public void clear() {

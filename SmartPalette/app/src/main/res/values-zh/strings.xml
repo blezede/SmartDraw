@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">智慧笔</string>
+    <string name="app_name">画吧</string>
 
     <string name="paint_type">画笔类型</string>
     <string name="paint_size">画笔大小</string>
@@ -7,4 +7,10 @@
     <string name="paint_alpha">不透明度</string>
     <string name="eraser_era">橡皮擦</string>
     <string name="eraser_clear">清屏</string>
+
+    <string name="portrait">竖屏</string>
+    <string name="land">横屏</string>
+    <string name="start_draw">开始绘图</string>
+    <string name="screen_choose">请选择屏幕方向：</string>
+    <string name="screen_choose_tip">请选择一个屏幕方向.</string>
 </resources>

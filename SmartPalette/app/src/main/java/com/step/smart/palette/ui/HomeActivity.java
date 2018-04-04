@@ -1,4 +1,4 @@
-package com.step.smart.palette.view;
+package com.step.smart.palette.ui;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,11 +25,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+
+import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
+import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.R;
 import com.step.smart.palette.utils.ColorsUtil;
+import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.widget.PaletteView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,6 +85,12 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
             getWindow().setFlags(
                     WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (Preferences.getInt(PreferenceConstant.SCREEN_ORIENTATION, PreferenceConstant.SCREEN_PORT) == PreferenceConstant.SCREEN_PORT) {
+            ScreenUtils.setPortrait(this);
+        } else {
+            ScreenUtils.setLandscape(this);
         }
         mPaletteView.initDrawAreas();
         initViews();

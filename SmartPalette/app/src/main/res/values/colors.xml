@@ -8,4 +8,6 @@
     <color name="color_blue_paint">#33B5E5</color>
     <color name="color_green_paint">#99CC00</color>
     <color name="color_yellow_paint">#FFBB33</color>
+    <color name="color_enter_enable">#1CA9BF</color>
+    <color name="color_enter_disable">#B4B4B4</color>
 </resources>
