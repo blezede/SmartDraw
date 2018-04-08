@@ -1,5 +1,6 @@
 package com.step.smart.palette.ui;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,12 +33,15 @@ import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.R;
+import com.step.smart.palette.services.RecordService;
 import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.widget.PaletteView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
 public class HomeActivity extends AppCompatActivity implements PaletteView.PaletteInterface {
 
@@ -71,6 +75,7 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
     private LineType mStrokeLineType = LineType.DRAW;
     private PopupWindow mPaintPopupWindow, mEraserPopupWindow, mColorPopupWindow;
+    private RecordService.Helper mHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +99,8 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         }
         mPaletteView.initDrawAreas();
         initViews();
+        mHelper = new RecordService.Helper(this, null);
+        mHelper.bindService();
     }
 
     private void initViews() {
@@ -527,5 +534,19 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     @Override
     public boolean isHighLighter() {
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        mHelper.unbindService();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RECORD_CODE && resultCode == RESULT_OK) {
+            mHelper.record(resultCode, data);
+        }
     }
 }

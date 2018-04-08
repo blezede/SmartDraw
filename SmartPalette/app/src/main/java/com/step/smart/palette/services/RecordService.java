@@ -3,7 +3,9 @@ package com.step.smart.palette.services;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
@@ -16,16 +18,10 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.blankj.utilcode.util.Utils;
-import com.weflow.wmeeting.meeting.R;
-import com.weflow.wmeeting.meeting.education.util.ConstantUtil;
-import com.weflow.wmeeting.meeting.education.util.Tools;
-import com.weflow.wmeeting.meeting.im.util.storage.StorageType;
-import com.weflow.wmeeting.meeting.im.util.storage.StorageUtil;
-
+import com.step.smart.palette.utils.StroageUtils;
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class RecordService extends Service {
@@ -58,11 +54,6 @@ public class RecordService extends Service {
         serviceThread.start();
         running = false;
 //		mediaRecorder = new MediaRecorder();
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        RecordService.RecordBinder binder = (RecordService.RecordBinder) service;
-        recordService = binder.getRecordService();
-        recordService.setConfig(metrics.widthPixels, metrics.heightPixels, metrics.densityDpi);
     }
 
     @Override
@@ -102,6 +93,23 @@ public class RecordService extends Service {
         return false;
     }
 
+    Timer checkSpaceTimer;
+    void startCheckStorageSpaceTimer() {
+        if (checkSpaceTimer != null) {
+            return;
+        }
+        checkSpaceTimer = new Timer();
+        checkSpaceTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                boolean hasEnoughSpace = StroageUtils.hasEnoughSpaceForWrite(50 * StroageUtils.M);
+                if (!hasEnoughSpace) {
+                    stopRecord();
+                }
+            }
+        }, 30 * 1000, 30 * 1000);
+    }
+
     public boolean stopRecord() {
         if (!running) {
             return false;
@@ -112,6 +120,10 @@ public class RecordService extends Service {
             mediaRecorder.reset();
             virtualDisplay.release();
             mediaProjection.stop();
+            if (checkSpaceTimer != null) {
+                checkSpaceTimer.cancel();
+                checkSpaceTimer = null;
+            }
         } catch (Exception e) {
             Log.e(TAG, "stopRecord error", e);
         }
@@ -143,7 +155,7 @@ public class RecordService extends Service {
 
     public String getSaveDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "MeetingRecord" + "/";
+            String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "StrokeRecord" + "/";
             Log.i(TAG, "rootDir:" + rootDir);
 
             File file = new File(rootDir);
@@ -161,22 +173,95 @@ public class RecordService extends Service {
         }
     }
 
-    public static void broadcastRecord(Activity activity) {
+    public void broadcastRecord(Activity activity, int code) {
         if (Build.VERSION.SDK_INT > 21) {
-            boolean hasEnoughSpace = StorageUtil.hasEnoughSpaceForWrite(activity, StorageType.TYPE_VIDEO, false);
+            boolean hasEnoughSpace = StroageUtils.hasEnoughSpaceForWrite(50 * StroageUtils.M);
             if (!hasEnoughSpace) {
-                Tools.showToast(activity, activity.getResources().getString(R.string.insufficient_storage_space), Toast.LENGTH_SHORT);
                 return;
             }
             MediaProjectionManager projectionManager = (MediaProjectionManager) activity.getSystemService(MEDIA_PROJECTION_SERVICE);
             Intent captureIntent = projectionManager.createScreenCaptureIntent();
-            activity.startActivityForResult(captureIntent, ConstantUtil.REQUEST_CODE_RECORD);
+            activity.startActivityForResult(captureIntent, code);
         }
     }
 
     public class RecordBinder extends Binder {
         public RecordService getRecordService() {
             return RecordService.this;
+        }
+    }
+
+    public static class Helper {
+
+        public static final int RECORD_CODE = 1001;
+
+        private Activity activity;
+        private ServiceConnection serviceConnection;
+        private RecordService recordService;
+
+        private ServiceConnection connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (Helper.this.serviceConnection != null) {
+                    Helper.this.serviceConnection.onServiceConnected(name, service);
+                }
+                Helper.this.recordService = ((RecordBinder) service).getRecordService();
+                DisplayMetrics metrics = new DisplayMetrics();
+                Helper.this.activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                Helper.this.recordService.setConfig(metrics.widthPixels, metrics.heightPixels, metrics.densityDpi);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                if (Helper.this.serviceConnection != null) {
+                    Helper.this.serviceConnection.onServiceDisconnected(name);
+                }
+            }
+        };
+
+        public Helper(Activity act, ServiceConnection conn) {
+            this.activity = act;
+            this.serviceConnection = conn;
+        }
+
+        public boolean bindService() {
+            boolean result = false;
+            if (this.activity != null) {
+                result = this.activity.bindService(new Intent(this.activity, RecordService.class), connection, BIND_AUTO_CREATE);
+            }
+            return result;
+        }
+
+        public void unbindService() {
+            if (this.activity != null && recordService != null) {
+                recordService.stopRecord();
+                this.activity.unbindService(connection);
+            }
+        }
+
+        public void requestRecord() {
+            if (this.activity != null && recordService != null) {
+                this.recordService.broadcastRecord(this.activity, RECORD_CODE);
+            }
+        }
+
+        public void record(int resultCode, Intent data) {
+            if (this.activity != null && recordService != null) {
+                MediaProjectionManager projectionManager = (MediaProjectionManager) activity.getSystemService(MEDIA_PROJECTION_SERVICE);
+                MediaProjection mediaProjection = projectionManager.getMediaProjection(resultCode, data);
+                if (mediaProjection == null) {
+                    return;
+                }
+                String videoFilePath = recordService.getSaveDirectory() + System.currentTimeMillis() + ".mp4";
+                recordService.setMediaProject(mediaProjection);
+                recordService.startRecord(videoFilePath);
+            }
+        }
+
+        public void stopRecord() {
+            if (recordService != null) {
+                recordService.stopRecord();
+            }
         }
     }
 }
