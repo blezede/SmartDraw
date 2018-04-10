@@ -14,12 +14,19 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import com.blankj.utilcode.util.TimeUtils;
+
 import com.step.smart.palette.utils.StroageUtils;
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,6 +42,9 @@ public class RecordService extends Service {
     private int width = 1920;
     private int height = 1080;
     private int dpi;
+    private TimeCallback timeCallback;
+
+    private long startTime, endTime;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -85,6 +95,9 @@ public class RecordService extends Service {
             createVirtualDisplay();
             mediaRecorder.start();
             running = true;
+            startCheckStorageSpaceTimer();
+            time();
+            startTime = System.currentTimeMillis();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "initRecorder error", e);
@@ -110,6 +123,30 @@ public class RecordService extends Service {
         }, 30 * 1000, 30 * 1000);
     }
 
+    private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("mm:ss", Locale.getDefault());
+
+    Timer timeTimer;
+    void time() {
+        if (timeTimer != null) {
+            return;
+        }
+        timeTimer = new Timer();
+        timeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (timeCallback != null) {
+                    new Handler(getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String time = TimeUtils.millis2String(System.currentTimeMillis() - startTime, DEFAULT_FORMAT);
+                            timeCallback.onTimeChange(time);
+                        }
+                    });
+                }
+            }
+        }, new Date(), 1000);
+    }
+
     public boolean stopRecord() {
         if (!running) {
             return false;
@@ -123,6 +160,10 @@ public class RecordService extends Service {
             if (checkSpaceTimer != null) {
                 checkSpaceTimer.cancel();
                 checkSpaceTimer = null;
+            }
+            if (timeTimer != null) {
+                timeTimer.cancel();
+                timeTimer = null;
             }
         } catch (Exception e) {
             Log.e(TAG, "stopRecord error", e);
@@ -155,7 +196,7 @@ public class RecordService extends Service {
 
     public String getSaveDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "StrokeRecord" + "/";
+            String rootDir = StroageUtils.getRecordVideoDirPath();
             Log.i(TAG, "rootDir:" + rootDir);
 
             File file = new File(rootDir);
@@ -176,6 +217,7 @@ public class RecordService extends Service {
     public void broadcastRecord(Activity activity, int code) {
         if (Build.VERSION.SDK_INT > 21) {
             boolean hasEnoughSpace = StroageUtils.hasEnoughSpaceForWrite(50 * StroageUtils.M);
+            Log.e(TAG, "broadcastRecord --> hasEnoughSpace = " + hasEnoughSpace);
             if (!hasEnoughSpace) {
                 return;
             }
@@ -183,6 +225,10 @@ public class RecordService extends Service {
             Intent captureIntent = projectionManager.createScreenCaptureIntent();
             activity.startActivityForResult(captureIntent, code);
         }
+    }
+
+    public void setTimeCallback(TimeCallback timeCallback) {
+        this.timeCallback = timeCallback;
     }
 
     public class RecordBinder extends Binder {
@@ -240,28 +286,53 @@ public class RecordService extends Service {
         }
 
         public void requestRecord() {
+            Log.e(TAG, "requestRecord -->" + activity + "---" +  recordService);
             if (this.activity != null && recordService != null) {
                 this.recordService.broadcastRecord(this.activity, RECORD_CODE);
             }
         }
 
-        public void record(int resultCode, Intent data) {
+        public boolean record(int resultCode, Intent data) {
             if (this.activity != null && recordService != null) {
                 MediaProjectionManager projectionManager = (MediaProjectionManager) activity.getSystemService(MEDIA_PROJECTION_SERVICE);
                 MediaProjection mediaProjection = projectionManager.getMediaProjection(resultCode, data);
                 if (mediaProjection == null) {
-                    return;
+                    return false;
                 }
                 String videoFilePath = recordService.getSaveDirectory() + System.currentTimeMillis() + ".mp4";
                 recordService.setMediaProject(mediaProjection);
-                recordService.startRecord(videoFilePath);
+                return recordService.startRecord(videoFilePath);
+            }
+            return false;
+        }
+
+        public boolean stopRecord() {
+            if (recordService != null) {
+                return recordService.stopRecord();
+            }
+            return false;
+        }
+
+        public void registerTimeCallback(TimeCallback timeCallback) {
+            if (timeCallback == null) {
+                return;
+            }
+            if (recordService != null) {
+                recordService.setTimeCallback(timeCallback);
             }
         }
 
-        public void stopRecord() {
+        public boolean isRecording() {
             if (recordService != null) {
-                recordService.stopRecord();
+                return recordService.isRunning();
             }
+            return false;
         }
+
+    }
+
+    public interface TimeCallback {
+
+        void onTimeChange(String time);
     }
 }

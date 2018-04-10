@@ -12,8 +12,7 @@
         <com.step.smart.palette.widget.PaletteView
             android:id="@+id/frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#EEEEEE"/>
+            android:layout_height="match_parent"/>
 
         <LinearLayout
             android:id="@+id/tools"
@@ -119,44 +118,86 @@
             </RelativeLayout>
         </LinearLayout>
 
-        <com.github.clans.fab.FloatingActionMenu
-            android:id="@+id/menu_red"
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/choose_bg_btn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginStart="10dp"
+            fab:fab_colorNormal="#FAFAFA"
+            fab:fab_colorPressed="#F5F5F5"
+            fab:fab_colorRipple="#FFFFFF"
+            fab:fab_shadowColor="#000"
+            android:src="@drawable/ic_droplet"
+            fab:fab_size="mini"
+            android:elevation="10dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/record_status"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="10dp"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:layout_gravity="top|end"
+            android:visibility="gone"
+            android:elevation="10dp"
+            android:background="@drawable/record_bg">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="3dp"
+                android:src="@drawable/ic_stop"/>
+            <TextView
+                android:id="@+id/record_time"
+                android:layout_width="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="3dp"
+                android:text="@string/record_time_def"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:paddingRight="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
+            android:elevation="10dp"
             fab:menu_labels_ellipsize="end"
             fab:menu_labels_singleLine="true"
             fab:menu_backgroundColor="#ccffffff"
-            fab:menu_fab_label="Menu label">
+            fab:menu_fab_label="@string/menu">
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_edit"
+                android:src="@drawable/ic_record"
                 fab:fab_size="mini"
-                fab:fab_label="Disabled" />
+                fab:fab_label="@string/menu_record" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_edit"
+                android:src="@drawable/ic_preview"
                 fab:fab_size="mini"
-                fab:fab_label="Remove button" />
+                fab:fab_label="@string/menu_preview" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_edit"
+                android:src="@drawable/ic_settings"
                 fab:fab_size="mini"
-                fab:fab_label="Restore Button" />
-
+                fab:fab_label="@string/menu_settings" />
         </com.github.clans.fab.FloatingActionMenu>
     </FrameLayout>
 

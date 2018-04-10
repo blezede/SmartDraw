@@ -13,4 +13,6 @@ public class PreferenceConstant {
     public static final int SCREEN_PORT = 0;
     public static final int SCREEN_LAND = 1;
 
+    public static final String SCREEN_PAGE_NOT_SHOW_AGAIN = "screen_not_show";
+
 }

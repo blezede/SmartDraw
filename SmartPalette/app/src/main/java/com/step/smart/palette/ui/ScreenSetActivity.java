@@ -25,7 +25,7 @@ import butterknife.OnClick;
  * Created by weflow on 2018/4/4.
  */
 
-public class ScreenSetActivity extends AppCompatActivity {
+public class ScreenSetActivity extends BaseActivity {
 
     @BindView(R.id.port_cb)
     CheckBox mPortraitCheckBox;
@@ -33,33 +33,29 @@ public class ScreenSetActivity extends AppCompatActivity {
     CheckBox mLandCheckBox;
     @BindView(R.id.enter_text)
     TextView mEnterTextView;
+    @BindView(R.id.agree)
+    View mAgreeView;
+    @BindView(R.id.agree_cb)
+    CheckBox mAgreeCheckBox;
+    @BindView(R.id.agree_tv)
+    TextView mAgreeTextView;
     private Resources mResources;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_screen);
-        ButterKnife.bind(this);
-        _init();
+    protected int getContentViewRes() {
+        return R.layout.activity_screen;
     }
 
-    private void _init() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        } else {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+    @Override
+    protected void _init() {
         mResources = getResources();
         mEnterTextView.setTextColor(mResources.getColor(R.color.color_enter_disable));
         mPortraitCheckBox.setChecked(false);
         mLandCheckBox.setChecked(false);
+        mAgreeCheckBox.setChecked(false);
     }
 
-    @OnClick({R.id.port_l, R.id.land_l, R.id.enter})
+    @OnClick({R.id.port_l, R.id.land_l, R.id.enter, R.id.agree})
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
@@ -71,6 +67,9 @@ public class ScreenSetActivity extends AppCompatActivity {
                 break;
             case R.id.enter:
                 enter();
+                break;
+            case R.id.agree:
+                agree();
                 break;
         }
     }
@@ -109,4 +108,12 @@ public class ScreenSetActivity extends AppCompatActivity {
         finish();
     }
 
+    private void agree() {
+        if (!mPortraitCheckBox.isChecked() && !mLandCheckBox.isChecked()) {
+            ToastUtils.showShort(R.string.screen_choose_tip);
+            return;
+        }
+        mAgreeCheckBox.setChecked(!mAgreeCheckBox.isChecked());
+        Preferences.saveBoolean(PreferenceConstant.SCREEN_PAGE_NOT_SHOW_AGAIN, mAgreeCheckBox.isChecked());
+    }
 }

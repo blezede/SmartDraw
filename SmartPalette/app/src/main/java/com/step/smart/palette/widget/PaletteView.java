@@ -3,9 +3,7 @@ package com.step.smart.palette.widget;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -14,14 +12,15 @@ import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
+import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.ScreenUtils;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.manager.FrameSizeManager;
 import com.step.smart.palette.utils.BitmapUtils;
 import com.step.smart.palette.utils.Preferences;
-
-import java.io.File;
+import com.step.smart.palette.utils.StroageUtils;
 
 /**
  * Created by weflow on 2018/3/21.
@@ -81,10 +80,14 @@ public class PaletteView extends FrameLayout {
     }
 
     public void initDrawAreas() {
+        Log.e(TAG, "initDrawAreas --> " + "\nwidth = " + mFrameManager.frameWidth + "\nheight = " + mFrameManager.frameHeight + "\nscreen_width = " + mFrameManager.wholeWidth + "\nscreen_height = " + mFrameManager.wholeHeight);
         if (this.getWidth() > 0 && this.getHeight() > 0) {
             label:
             {
-                if (this.getWidth() <= this.getHeight()) {
+                if (ScreenUtils.isLandscape() && this.getWidth() <= this.getHeight()) {
+                    break label;
+                }
+                if (ScreenUtils.isPortrait() && this.getWidth() > this.getHeight()) {
                     break label;
                 }
                 mFrameManager.frameWidth = getWidth();
@@ -139,7 +142,13 @@ public class PaletteView extends FrameLayout {
 
     public void screenShot(boolean wholeScreen) {
         long start = System.currentTimeMillis();
-        String path = getContext().getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".png";
+        //String path = getContext().getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".png";
+        String dirPath = StroageUtils.getRecordImgDirPath();
+        boolean existsDir = FileUtils.createOrExistsDir(dirPath);
+        if (!existsDir) {
+            return;
+        }
+        String path = dirPath + System.currentTimeMillis() + ".png";
         if (wholeScreen) {
             Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
             Canvas canvas = new Canvas(bmp);
@@ -164,6 +173,26 @@ public class PaletteView extends FrameLayout {
             }
         }
         Log.e("PaletteView", "save finish --> " + (System.currentTimeMillis() - start));
+    }
+
+    public Bitmap screenShotBitmap(boolean wholeScreen) {
+        if (wholeScreen) {
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Canvas canvas = new Canvas(bmp);
+            this.mFrame.draw(canvas);
+            return bmp;
+        } else {
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Canvas canvas = new Canvas(bmp);
+            this.mFrame.draw(canvas);
+            Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.ARGB_4444);
+            Canvas currCanvas = new Canvas(currBmp);
+            currCanvas.drawBitmap(bmp,
+                    new Rect((int)(Math.abs(this.mFrame.getX())), (int)Math.abs(this.mFrame.getY()), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameWidth), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameHeight)),
+                    new Rect(0, 0, this.mFrameManager.frameWidth, this.mFrameManager.frameHeight),
+                    null);
+           return currBmp;
+        }
     }
 
     @Override

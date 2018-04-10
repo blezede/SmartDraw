@@ -2,15 +2,17 @@ package com.step.smart.palette.ui;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,24 +28,36 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import com.afollestad.materialdialogs.util.DialogUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.R;
+import com.step.smart.palette.message.MessageEvent;
 import com.step.smart.palette.services.RecordService;
 import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.widget.PaletteView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
-public class HomeActivity extends AppCompatActivity implements PaletteView.PaletteInterface {
+public class HomeActivity extends BaseActivity implements PaletteView.PaletteInterface, ColorChooserDialog.ColorCallback {
 
     @BindView(R.id.frame)
     PaletteView mPaletteView;
@@ -67,6 +81,16 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     ImageView mUndoImageView;
     @BindView(R.id.stroke_img)
     ImageView mStrokeImgView;
+    @BindView(R.id.menu)
+    FloatingActionMenu mFloatingMenu;
+    @BindView(R.id.fab1)
+    FloatingActionButton mRecordFloatingBtn;
+    @BindView(R.id.record_status)
+    View mRecordView;
+    @BindView(R.id.record_time)
+    TextView mRecordTimeTextView;
+    @BindView(R.id.choose_bg_btn)
+    FloatingActionButton mColorFloatingBtn;
 
     private int mPenColor = Color.BLACK;
     private float mStrokeWidth = 5f;
@@ -76,21 +100,15 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     private LineType mStrokeLineType = LineType.DRAW;
     private PopupWindow mPaintPopupWindow, mEraserPopupWindow, mColorPopupWindow;
     private RecordService.Helper mHelper;
+    private int mDefaultBgColor = Color.parseColor("#E0E0E0");
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        } else {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+    protected int getContentViewRes() {
+        return R.layout.activity_home;
+    }
+
+    @Override
+    protected void _init() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (Preferences.getInt(PreferenceConstant.SCREEN_ORIENTATION, PreferenceConstant.SCREEN_PORT) == PreferenceConstant.SCREEN_PORT) {
             ScreenUtils.setPortrait(this);
@@ -101,14 +119,16 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         initViews();
         mHelper = new RecordService.Helper(this, null);
         mHelper.bindService();
+        EventBus.getDefault().register(this);
     }
 
     private void initViews() {
         initPaintPop();
         initEraserPopup();
         initColorPop();
-        mPaletteView.setBackgroundColor(Color.parseColor("#EEEEEE"));
+        mPaletteView.setBackgroundColor(mDefaultBgColor);
         flushStrokeColor();
+        initMenu();
     }
 
     private void initColorPop() {
@@ -185,21 +205,14 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         //mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
     }
 
-    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo})
+    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo, R.id.fab1, R.id.fab2, R.id.fab3, R.id.record_status, R.id.choose_bg_btn})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
                 if (mPaletteView.isEmpty()) {
                     return;
                 }
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        mPaletteView.screenShot(true);
-                        return null;
-                    }
-                }.execute();
+                showSaveDialog();
                 break;
             case R.id.undo://撤销
                 mPaletteView.undo();
@@ -237,7 +250,50 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
                     break;
                 }
                 break;
+            case R.id.fab1:
+                mFloatingMenu.close(true);
+                if (mHelper.isRecording()) {
+                    ToastUtils.showShort("正在录屏");
+                    return;
+                }
+                mHelper.requestRecord();
+                break;
+            case R.id.fab2:
+                mFloatingMenu.close(true);
+                startActivity(new Intent(this, PreViewActivity.class));
+                break;
+            case R.id.fab3:
+                mFloatingMenu.close(true);
+                break;
+            case R.id.record_status:
+                mRecordView.setVisibility(View.GONE);
+                boolean result = mHelper.stopRecord();
+                if (result) {
+                    ToastUtils.showShort("录屏文件已保存");
+                }
+                mRecordTimeTextView.setText(R.string.record_time_def);
+                break;
+            case R.id.choose_bg_btn:
+                showColorChooseDialog();
+                break;
         }
+    }
+
+    private void initMenu() {
+        mFloatingMenu.setClosedOnTouchOutside(true);
+        //mFloatingMenu.hideMenuButton(false);
+        mFloatingMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatingMenu.toggle(true);
+            }
+        });
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            mRecordFloatingBtn.show(false);
+        } else {
+            mRecordFloatingBtn.hide(false);
+        }
+        flushBgIconColor();
     }
 
     @Override
@@ -531,6 +587,14 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
         }
     }
 
+    private void flushBgIconColor() {
+        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_droplet,getTheme());
+        vectorCompat.setTint(mDefaultBgColor);
+        if (mColorFloatingBtn != null) {
+            mColorFloatingBtn.setImageDrawable(vectorCompat);
+        }
+    }
+
     @Override
     public boolean isHighLighter() {
         return false;
@@ -540,13 +604,127 @@ public class HomeActivity extends AppCompatActivity implements PaletteView.Palet
     protected void onDestroy() {
         mHelper.unbindService();
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.what) {
+            case MessageEvent.REQUEST_PREVIEW_BITMAP:
+                new AsyncTask<Void, Void, Bitmap>() {
+
+                    @Override
+                    protected Bitmap doInBackground(Void... voids) {
+                        return HomeActivity.this.getScreenShotBitmap();
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        MessageEvent msg = MessageEvent.obtain();
+                        msg.what = MessageEvent.PREVIEW_BITMAP_RESULT;
+                        msg.obj = bitmap;
+                        EventBus.getDefault().post(msg);
+                    }
+                }.execute();
+                break;
+        }
+        
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RECORD_CODE && resultCode == RESULT_OK) {
-            mHelper.record(resultCode, data);
+            boolean result = mHelper.record(resultCode, data);
+            mHelper.registerTimeCallback(new RecordService.TimeCallback() {
+                @Override
+                public void onTimeChange(String time) {
+                    if (!TextUtils.isEmpty(time)) {
+                        mRecordTimeTextView.setText(time);
+                    }
+                }
+            });
+            if (result) {
+                mRecordView.setVisibility(View.VISIBLE);
+            } else {
+                mRecordView.setVisibility(View.GONE);
+            }
+            mRecordTimeTextView.setText(R.string.record_time_def);
         }
+    }
+
+    public Bitmap getScreenShotBitmap() {
+        if (mPaletteView == null) {
+            return null;
+        }
+        return mPaletteView.screenShotBitmap(true);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mFloatingMenu.isOpened()) {
+            mFloatingMenu.close(true);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void showSaveDialog() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.save_type)
+                .items(R.array.save_sel)
+                //.itemsDisabledIndices(1)
+                .itemsCallbackSingleChoice(
+                        0, new MaterialDialog.ListCallbackSingleChoice() {
+                            @Override
+                            public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                                if (which == 0) {
+                                    new AsyncTask<Void, Void, Void>() {
+
+                                        @Override
+                                        protected Void doInBackground(Void... voids) {
+                                            mPaletteView.screenShot(false);
+                                            return null;
+                                        }
+                                    }.execute();
+                                } else if(which == 1) {
+                                    new AsyncTask<Void, Void, Void>() {
+
+                                        @Override
+                                        protected Void doInBackground(Void... voids) {
+                                            mPaletteView.screenShot(true);
+                                            return null;
+                                        }
+                                    }.execute();
+                                }
+                                return true;
+                            }
+                        })
+                .positiveText(R.string.md_choose_label)
+                .show();
+    }
+
+    private void showColorChooseDialog() {
+        new ColorChooserDialog.Builder(this, R.string.palette_bg_color)
+                .titleSub(R.string.palette_bg_colors)
+                .preselect(mDefaultBgColor)
+                .allowUserColorInput(false)
+                .backButton(R.string.back)
+                .doneButton(R.string.done)
+                .cancelButton(R.string.cancel)
+                .build()
+                .show(this.getSupportFragmentManager());
+    }
+
+    @Override
+    public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
+        mPaletteView.setBackgroundColor(selectedColor);
+        mDefaultBgColor = selectedColor;
+        flushBgIconColor();
+    }
+
+    @Override
+    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
+
     }
 }

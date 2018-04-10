@@ -75,6 +75,36 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/agree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/screen_container"
+        android:layout_below="@+id/screen_container"
+        android:layout_marginTop="40dp"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/agree_cb"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:button="@drawable/check_box_selector"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <TextView
+            android:id="@+id/agree_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/check_tip"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -97,7 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="6dp"
             android:src="@drawable/arrow" />
     </LinearLayout>
 </RelativeLayout>

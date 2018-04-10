@@ -28,6 +28,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".services.RecordService"/>
+        <activity android:name=".ui.SettingsActivity"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:theme="@style/Dialog_Style"/>
+        <activity android:name=".ui.PreViewActivity"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:theme="@style/Dialog_Style"/>
     </application>
 
 </manifest>
