@@ -60,6 +60,7 @@ public class SettingsActivity extends BaseActivity {
                 Preferences.saveBoolean(PreferenceConstant.SCREEN_PAGE_NOT_SHOW_AGAIN, !isChecked);
             }
         });
+        mScreenSwitch.setChecked(!Preferences.getBoolean(PreferenceConstant.SCREEN_PAGE_NOT_SHOW_AGAIN, false));
     }
 
     @OnClick({R.id.close, R.id.screen_set})
