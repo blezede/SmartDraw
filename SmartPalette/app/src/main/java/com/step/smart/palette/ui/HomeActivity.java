@@ -1,5 +1,8 @@
 package com.step.smart.palette.ui;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -10,9 +13,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,9 +33,9 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
-import com.afollestad.materialdialogs.util.DialogUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -47,16 +50,21 @@ import com.step.smart.palette.services.RecordService;
 import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.widget.PaletteView;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
 import butterknife.BindView;
 import butterknife.OnClick;
-
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnNeverAskAgain;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.PermissionUtils;
+import permissions.dispatcher.RuntimePermissions;
 import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
+@RuntimePermissions
 public class HomeActivity extends BaseActivity implements PaletteView.PaletteInterface, ColorChooserDialog.ColorCallback {
 
     @BindView(R.id.frame)
@@ -120,6 +128,50 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         mHelper = new RecordService.Helper(this, null);
         mHelper.bindService();
         EventBus.getDefault().register(this);
+        HomeActivityPermissionsDispatcher.requestStoragePermissionsWithPermissionCheck(this);
+    }
+
+    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    void requestStoragePermissions() {
+
+    }
+
+    @OnShowRationale({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    void showRationaleForStorage(final PermissionRequest request) {
+        new MaterialDialog.Builder(this)
+                .content(R.string.storage_access)
+                .canceledOnTouchOutside(false)
+                .positiveText(R.string.agree)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        request.proceed();
+                    }
+                })
+                .negativeText(R.string.disagree)
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        request.cancel();
+                    }
+                })
+                .show();
+    }
+
+    @OnPermissionDenied({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    void showDeniedForStorage() {
+        ToastUtils.showShort("deny");
+    }
+
+    @OnNeverAskAgain({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    void showNeverAskForStorage() {
+        ToastUtils.showShort("NeverAsk");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        HomeActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     private void initViews() {
@@ -210,6 +262,11 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         switch (v.getId()) {
             case R.id.save:
                 if (mPaletteView.isEmpty()) {
+                    ToastUtils.showShort(R.string.not_draw_yet);
+                    return;
+                }
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
+                    ToastUtils.showShort(R.string.need_storage_mission);
                     return;
                 }
                 showSaveDialog();
@@ -250,26 +307,31 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                     break;
                 }
                 break;
-            case R.id.fab1:
+            case R.id.fab1://recording
                 mFloatingMenu.close(true);
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
+                    ToastUtils.showShort(R.string.need_storage_mission);
+                    return;
+                }
                 if (mHelper.isRecording()) {
-                    ToastUtils.showShort("正在录屏");
+                    ToastUtils.showShort(R.string.recording);
                     return;
                 }
                 mHelper.requestRecord();
                 break;
-            case R.id.fab2:
+            case R.id.fab2://preview
                 mFloatingMenu.close(true);
                 startActivity(new Intent(this, PreViewActivity.class));
                 break;
-            case R.id.fab3:
+            case R.id.fab3://settings
                 mFloatingMenu.close(true);
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.record_status:
                 mRecordView.setVisibility(View.GONE);
                 boolean result = mHelper.stopRecord();
                 if (result) {
-                    ToastUtils.showShort("录屏文件已保存");
+                    ToastUtils.showShort(R.string.save_success);
                 }
                 mRecordTimeTextView.setText(R.string.record_time_def);
                 break;
@@ -355,14 +417,14 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                         Gravity.NO_GRAVITY, location[0] - mPaintPopupWindow.getWidth() / 2 + mPaintImageView.getWidth() / 2,
                         location[1] - mPaintPopupWindow.getHeight() - mPaintImageView.getHeight() / 2);*/
 
-                mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
+                mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
                 break;
             case 1:
-                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
+                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
                 break;
             case 2:
                 //mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
-                mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - (int)getResources().getDimension(R.dimen.paint_popup_deliver), Gravity.TOP);
+                mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
                 break;
 
         }
@@ -666,7 +728,8 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             mFloatingMenu.close(true);
             return;
         }
-        super.onBackPressed();
+        //super.onBackPressed();
+        showExitDialog();
     }
 
     private void showSaveDialog() {
@@ -679,28 +742,14 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 if (which == 0) {
-                                    new AsyncTask<Void, Void, Void>() {
-
-                                        @Override
-                                        protected Void doInBackground(Void... voids) {
-                                            mPaletteView.screenShot(false);
-                                            return null;
-                                        }
-                                    }.execute();
+                                    saveRecordImg(false);
                                 } else if(which == 1) {
-                                    new AsyncTask<Void, Void, Void>() {
-
-                                        @Override
-                                        protected Void doInBackground(Void... voids) {
-                                            mPaletteView.screenShot(true);
-                                            return null;
-                                        }
-                                    }.execute();
+                                    saveRecordImg(true);
                                 }
                                 return true;
                             }
                         })
-                .positiveText(R.string.md_choose_label)
+                .positiveText(R.string.confirm)
                 .show();
     }
 
@@ -726,5 +775,65 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     @Override
     public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
 
+    }
+
+    private MaterialDialog mProgressDislog;
+    private void showProgressDialog(@StringRes int stringId) {
+        mProgressDislog = new MaterialDialog.Builder(this)
+                //.title(R.string.progress_dialog)
+                .canceledOnTouchOutside(false)
+                .content(stringId)
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();
+    }
+
+    private void dismissProgressDialog() {
+        if (mProgressDislog != null) {
+            mProgressDislog.dismiss();
+        }
+    }
+
+    private boolean isProgressDialogShowing() {
+        return mProgressDislog != null ? mProgressDislog.isShowing() : false;
+    }
+
+    private void saveRecordImg(final boolean wholeCanvas) {
+        showProgressDialog(R.string.saving);
+        new AsyncTask<Void, Void, String>() {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                if (mPaletteView == null) {
+                    return "";
+                }
+                return mPaletteView.screenShot(wholeCanvas);
+            }
+
+            @Override
+            protected void onPostExecute(String aVoid) {
+                dismissProgressDialog();
+                if (TextUtils.isEmpty(aVoid)) {
+                    ToastUtils.showShort(R.string.save_failed);
+                    return;
+                } else {
+                    ToastUtils.showShort(R.string.save_success);
+                }
+            }
+        }.execute();
+    }
+
+    private void showExitDialog() {
+        new MaterialDialog.Builder(this)
+                .content(R.string.exit_tip)
+                .positiveText(R.string.confirm)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        finish();
+                    }
+                })
+                .negativeText(R.string.cancel)
+                .show();
     }
 }

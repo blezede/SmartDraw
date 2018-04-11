@@ -18,8 +18,7 @@
             android:screenOrientation="sensor">
         </activity>
 
-        <activity android:name=".ui.FlashActivity"/>
-        <activity android:name=".ui.ScreenSetActivity"
+        <activity android:name=".ui.FlashActivity"
             android:screenOrientation="sensor"
             android:configChanges="locale|orientation|screenSize">
             <intent-filter>
@@ -27,6 +26,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".ui.ScreenSetActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="locale|orientation|screenSize">
+
         </activity>
         <service android:name=".services.RecordService"/>
         <activity android:name=".ui.SettingsActivity"

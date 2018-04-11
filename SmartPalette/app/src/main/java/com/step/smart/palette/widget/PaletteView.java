@@ -140,22 +140,29 @@ public class PaletteView extends FrameLayout {
         this.mFrame.setBackgroundColor(color);
     }
 
-    public void screenShot(boolean wholeScreen) {
+    public String screenShot(boolean wholeScreen) {
         long start = System.currentTimeMillis();
         //String path = getContext().getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".png";
         String dirPath = StroageUtils.getRecordImgDirPath();
         boolean existsDir = FileUtils.createOrExistsDir(dirPath);
         if (!existsDir) {
-            return;
+            return "";
         }
         String path = dirPath + System.currentTimeMillis() + ".png";
+        if (this.mFrame == null || this.mFrameManager == null) {
+            return "";
+        }
         if (wholeScreen) {
             Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
             Canvas canvas = new Canvas(bmp);
             this.mFrame.draw(canvas);
             byte[] data = BitmapUtils.bitmap2Bytes(bmp, 100);
-            if (data.length > 0) {
-                boolean result = BitmapUtils.saveByteData(data, path);
+            if (data.length <= 0) {
+                return "";
+            }
+            boolean result = BitmapUtils.saveByteData(data, path);
+            if (result) {
+                return path;
             }
         } else {
             Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
@@ -168,11 +175,16 @@ public class PaletteView extends FrameLayout {
                     new Rect(0, 0, this.mFrameManager.frameWidth, this.mFrameManager.frameHeight),
                     null);
             byte[] data = BitmapUtils.bitmap2Bytes(currBmp, 100);
-            if (data.length > 0) {
-                boolean result = BitmapUtils.saveByteData(data, path);
+            if (data.length <= 0) {
+                return "";
+            }
+            boolean result = BitmapUtils.saveByteData(data, path);
+            if (result) {
+                return path;
             }
         }
         Log.e("PaletteView", "save finish --> " + (System.currentTimeMillis() - start));
+        return "";
     }
 
     public Bitmap screenShotBitmap(boolean wholeScreen) {

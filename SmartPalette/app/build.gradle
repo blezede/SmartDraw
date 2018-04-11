@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId 'com.step.smart.palette'
-        minSdkVersion 21
+        minSdkVersion 18
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -13,7 +13,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -38,4 +38,10 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
+    compile("com.github.hotchemi:permissionsdispatcher:3.1.0") {
+        // if you don't use android.app.Fragment you can exclude support for them
+        exclude module: "support-v13"
+    }
+    annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:3.1.0"
+    compile 'com.kyleduo.switchbutton:library:2.0.0'
 }

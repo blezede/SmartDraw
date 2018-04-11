@@ -27,10 +27,24 @@
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
+    <string name="confirm">Confirm</string>
 
     <string name="save_type">Select save type:</string>
     <string-array name="save_sel">
         <item>Part</item>
         <item>All</item>
     </string-array>
+    <string name="saving">Saving&#8230;</string>
+    <string name="save_success">Save success.</string>
+    <string name="save_failed">Save failed.</string>
+
+    <string name="storage_access">The App want to access your Storage, Agree?</string>
+    <string name="agree">Agree</string>
+    <string name="disagree">Disagree</string>
+
+    <string name="not_draw_yet">You have not draw anything yet.</string>
+    <string name="need_storage_mission">Please allow storage permissions that needed in System Settings.</string>
+    <string name="recording">Recording&#8230;</string>
+
+    <string name="exit_tip">Are you sure to exit?</string>
 </resources>

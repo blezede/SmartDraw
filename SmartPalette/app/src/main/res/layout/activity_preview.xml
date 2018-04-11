@@ -1,32 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/pre_window_bg"
     android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:maxLines="1"
+            android:text="@string/menu_preview"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_close" />
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/pre_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/pre_window_bg">
+        android:layout_height="match_parent">
 
         <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/pre_photo"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:layout_height="match_parent" />
+            android:scaleType="fitCenter" />
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/indicator"
+            style="@style/AVLoadingIndicatorView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            style="@style/AVLoadingIndicatorView"
             android:visibility="gone"
-            app:indicatorName="PacmanIndicator"
             app:indicatorColor="@color/color_enter_enable"
-        />
+            app:indicatorName="PacmanIndicator" />
     </FrameLayout>
 </LinearLayout>

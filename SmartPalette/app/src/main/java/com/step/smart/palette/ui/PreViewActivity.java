@@ -30,6 +30,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by weflow on 2018/4/9.
@@ -43,6 +44,7 @@ public class PreViewActivity extends BaseActivity {
     PhotoView mPhotoView;
     @BindView(R.id.indicator)
     AVLoadingIndicatorView mAVLoadingIndicatorView;
+    private final static float mScale = 0.7f;
 
     @Override
     protected int getContentViewRes() {
@@ -63,13 +65,23 @@ public class PreViewActivity extends BaseActivity {
 
     private void initViews() {
         ViewGroup.LayoutParams params = mFrameContainer.getLayoutParams();
-        params.width = (int) (ScreenUtils.getScreenWidth() * 0.8f);
-        params.height = (int) (ScreenUtils.getScreenHeight() * 0.8f);
+        params.width = (int) (ScreenUtils.getScreenWidth() * mScale);
+        params.height = (int) (ScreenUtils.getScreenHeight() * mScale);
         mFrameContainer.setLayoutParams(params);
         ViewGroup.LayoutParams layoutParams = mPhotoView.getLayoutParams();
-        layoutParams.width = (int) (ScreenUtils.getScreenWidth() * 0.8f * 0.95);
-        layoutParams.height = (int) (ScreenUtils.getScreenHeight() * 0.8f * 0.95);
+        layoutParams.width = (int) (ScreenUtils.getScreenWidth() * mScale * 0.95);
+        layoutParams.height = (int) (ScreenUtils.getScreenHeight() * mScale * 0.95);
         mPhotoView.setLayoutParams(layoutParams);
+    }
+
+    @OnClick({R.id.close})
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.close:
+                finish();
+                break;
+        }
     }
 
     private void prepare() {

@@ -146,6 +146,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
         mPaletteData.pathList.clear();
         mPaletteData.undoList.clear();
         reFlush();
+        if (mPaletteInterface != null)
+            mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 
     /**
@@ -158,7 +160,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
             mPaletteData.undoList.add(entity);
             reFlush();
         }
-        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
+        if (mPaletteInterface != null)
+            mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 
     /**
@@ -171,7 +174,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
             mPaletteData.pathList.add(entity);
             reFlush();
         }
-        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
+        if (mPaletteInterface != null)
+            mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 
     public boolean isEmpty() {
