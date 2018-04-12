@@ -38,7 +38,7 @@
     <string name="save_success">Save success.</string>
     <string name="save_failed">Save failed.</string>
 
-    <string name="storage_access">The App want to access your Storage, Agree?</string>
+    <string name="storage_access">The App want to access your Storage and read your phone state, Agree?</string>
     <string name="agree">Agree</string>
     <string name="disagree">Disagree</string>
 

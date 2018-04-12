@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.blankj.utilcode.util.ScreenUtils;
+import com.blankj.utilcode.util.SizeUtils;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
 import com.step.smart.palette.entity.PaletteData;
@@ -34,12 +36,13 @@ public class PaletteStrokeView extends View {
 
     private Paint mPaint;
     private Paint mEraserPaint;
+    private Paint mEraserPointPaint;
     private Canvas mCanvas;
     private boolean mIsDraw = false;
     private Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
     private PaletteData mPaletteData = new PaletteData();
     private float mStrokeWidth = 5f;
-    private float mEraserWidth = 140f;
+    private float mEraserWidth = SizeUtils.dp2px(40f);
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
     private LineType mCurrentLineType = LineType.DRAW;
     private int mColor = Color.BLACK;
@@ -76,12 +79,18 @@ public class PaletteStrokeView extends View {
         mPaint.setMaskFilter(mDefaultBlur);
 
         mEraserPaint = new Paint();
+        mEraserPaint.setFlags(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         mEraserPaint.setStyle(Paint.Style.STROKE);
         mEraserPaint.setStrokeJoin(Paint.Join.ROUND);
         mEraserPaint.setStrokeCap(Paint.Cap.ROUND);//线冒
         mEraserPaint.setStrokeWidth(mEraserWidth);
         mEraserPaint.setColor(Color.WHITE);
         mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//关键代码
+
+        mEraserPointPaint = new Paint(mEraserPaint);
+        mEraserPointPaint.setStyle(Paint.Style.FILL);
+        mEraserPointPaint.setXfermode(null);
+        mEraserPointPaint.setMaskFilter(new BlurMaskFilter(5F, BlurMaskFilter.Blur.SOLID));
     }
 
     private float mOriginalX;
@@ -105,11 +114,13 @@ public class PaletteStrokeView extends View {
                 break;
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
-                flush((int) mCurrX, (int) mCurrY);
+                //flush((int) mCurrX, (int) mCurrY);
+                invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
-                flush((int) mCurrX, (int) mCurrY);
+                //flush((int) mCurrX, (int) mCurrY);
+                invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 onTouchUp();
@@ -205,6 +216,7 @@ public class PaletteStrokeView extends View {
         invalidate();
     }
 
+    private Path mEraserPointPath = new Path();
     @Override
     protected void onDraw(Canvas canvas) {
         if (mCurrPathEntity != null) {
@@ -214,6 +226,10 @@ public class PaletteStrokeView extends View {
                 canvas.drawOval(mCurrPathEntity.rect, mCurrPathEntity.paint);
             } else if (mCurrPathEntity.type == LineType.RECTANGLE) {
                 canvas.drawRect(mCurrPathEntity.rect, mCurrPathEntity.paint);
+            } else if(mCurrPathEntity.type == LineType.ERASER) {
+                if (mCurrX != 0 && mCurrY != 0) {
+                    canvas.drawCircle(mCurrX, mCurrY, mEraserWidth / 2, mEraserPointPaint);
+                }
             }
         }
     }

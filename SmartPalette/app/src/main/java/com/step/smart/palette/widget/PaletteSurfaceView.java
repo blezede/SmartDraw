@@ -45,7 +45,7 @@ public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private Map<String, PathEntity> mCurrentPathMap = Collections.synchronizedMap(new HashMap<String, PathEntity>());
     private PaletteData mPaletteData = new PaletteData();
     private float mStrokeWidth = 5f;
-    private float mEraserWidth = 140f;
+    private float mEraserWidth = 30f;
     private DrawMode mCurrDrawMode = DrawMode.EDIT;
     private LineType mCurrentLineType = LineType.DRAW;
     private int mColor = Color.BLACK;

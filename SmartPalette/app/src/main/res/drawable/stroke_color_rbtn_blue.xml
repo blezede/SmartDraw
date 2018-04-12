@@ -2,11 +2,11 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <item android:state_checked="true">
         <layer-list>
-            <item android:drawable="@drawable/ic_more">
-                <!--<shape android:shape="oval">
+            <item > <!--android:drawable="@drawable/ic_more"-->
+                <shape android:shape="oval">
                     <solid android:color="@android:color/holo_blue_light" />
                     <size android:width="20dp" android:height="20dp" />
-                </shape>-->
+                </shape>
             </item>
             <item android:bottom="2dp" android:left="2dp" android:right="2sp" android:top="2dp">
 
@@ -20,11 +20,11 @@
     </item>
     <item android:state_checked="false">
         <layer-list>
-            <item android:drawable="@drawable/ic_more">
-                <!--<shape android:shape="oval">
+            <item > <!--android:drawable="@drawable/ic_more"-->
+                <shape android:shape="oval">
                     <solid android:color="@android:color/holo_blue_light" />
                     <size android:width="20dp" android:height="20dp" />
-                </shape>-->
+                </shape>
             </item>
             <!--<item>
                 <shape android:shape="oval">

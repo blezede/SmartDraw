@@ -1,6 +1,7 @@
 package com.step.smart.palette.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
@@ -8,10 +9,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.R;
@@ -27,6 +30,8 @@ import butterknife.OnClick;
 
 public class ScreenSetActivity extends BaseActivity {
 
+    @BindView(R.id.screen_container)
+    View mContainerView;
     @BindView(R.id.port_cb)
     CheckBox mPortraitCheckBox;
     @BindView(R.id.land_cb)
@@ -53,6 +58,7 @@ public class ScreenSetActivity extends BaseActivity {
         mPortraitCheckBox.setChecked(false);
         mLandCheckBox.setChecked(false);
         mAgreeCheckBox.setChecked(false);
+        reSize();
     }
 
     @OnClick({R.id.port_l, R.id.land_l, R.id.enter, R.id.agree})
@@ -115,5 +121,17 @@ public class ScreenSetActivity extends BaseActivity {
         }
         mAgreeCheckBox.setChecked(!mAgreeCheckBox.isChecked());
         Preferences.saveBoolean(PreferenceConstant.SCREEN_PAGE_NOT_SHOW_AGAIN, mAgreeCheckBox.isChecked());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        reSize();
+    }
+
+    private void reSize() {
+        ViewGroup.LayoutParams params = mContainerView.getLayoutParams();
+        params.width = (int)((ScreenUtils.getScreenWidth() * 2.0f) / 3.0f);
+        mContainerView.setLayoutParams(params);
     }
 }

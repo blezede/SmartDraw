@@ -1,24 +1,15 @@
 package com.step.smart.palette.ui;
 
-import android.graphics.Color;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-
 import com.blankj.utilcode.util.ScreenUtils;
 import com.kyleduo.switchbutton.SwitchButton;
 import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.R;
 import com.step.smart.palette.utils.Preferences;
-
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**

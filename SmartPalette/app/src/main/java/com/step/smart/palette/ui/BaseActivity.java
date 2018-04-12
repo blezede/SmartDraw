@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.umeng.analytics.MobclickAgent;
+
 import butterknife.ButterKnife;
 
 /**
@@ -40,4 +42,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract @LayoutRes int getContentViewRes();
 
     protected abstract void _init();
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
 }

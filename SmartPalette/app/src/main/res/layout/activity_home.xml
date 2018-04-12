@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white">
 
     <FrameLayout
@@ -50,12 +52,12 @@
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
-                <ImageView
+                <android.support.v7.widget.AppCompatImageView
                     android:id="@+id/stroke_img"
                     android:layout_width="@dimen/tools_item_w"
                     android:layout_height="@dimen/tools_item_h"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_pen" />
+                    app:srcCompat="@drawable/ic_pen" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -128,7 +130,7 @@
             fab:fab_colorPressed="#F5F5F5"
             fab:fab_colorRipple="#FFFFFF"
             fab:fab_shadowColor="#000"
-            android:src="@drawable/ic_droplet"
+            app:srcCompat="@drawable/ic_droplet"
             fab:fab_size="mini"
             android:elevation="10dp"
             />
@@ -144,12 +146,12 @@
             android:visibility="gone"
             android:elevation="10dp"
             android:background="@drawable/record_bg">
-            <ImageView
+            <android.support.v7.widget.AppCompatImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="3dp"
-                android:src="@drawable/ic_stop"/>
+                app:srcCompat="@drawable/ic_stop"/>
             <TextView
                 android:id="@+id/record_time"
                 android:layout_width="wrap_content"
@@ -180,6 +182,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_record"
+                android:visibility="gone"
                 fab:fab_size="mini"
                 fab:fab_label="@string/menu_record" />
 

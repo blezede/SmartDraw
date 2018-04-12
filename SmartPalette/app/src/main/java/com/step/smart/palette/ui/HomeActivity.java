@@ -15,7 +15,9 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,7 +90,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     @BindView(R.id.undo_img)
     ImageView mUndoImageView;
     @BindView(R.id.stroke_img)
-    ImageView mStrokeImgView;
+    AppCompatImageView mStrokeImgView;
     @BindView(R.id.menu)
     FloatingActionMenu mFloatingMenu;
     @BindView(R.id.fab1)
@@ -131,12 +133,12 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         HomeActivityPermissionsDispatcher.requestStoragePermissionsWithPermissionCheck(this);
     }
 
-    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE})
     void requestStoragePermissions() {
 
     }
 
-    @OnShowRationale({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @OnShowRationale({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE})
     void showRationaleForStorage(final PermissionRequest request) {
         new MaterialDialog.Builder(this)
                 .content(R.string.storage_access)
@@ -158,14 +160,12 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 .show();
     }
 
-    @OnPermissionDenied({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @OnPermissionDenied({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE})
     void showDeniedForStorage() {
-        ToastUtils.showShort("deny");
     }
 
-    @OnNeverAskAgain({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @OnNeverAskAgain({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE})
     void showNeverAskForStorage() {
-        ToastUtils.showShort("NeverAsk");
     }
 
     @Override
@@ -351,9 +351,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             }
         });
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            mRecordFloatingBtn.show(false);
+            mRecordFloatingBtn.showButtonInMenu(false);
         } else {
-            mRecordFloatingBtn.hide(false);
+            mRecordFloatingBtn.hideButtonInMenu(false);
         }
         flushBgIconColor();
     }
@@ -417,22 +417,35 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                         Gravity.NO_GRAVITY, location[0] - mPaintPopupWindow.getWidth() / 2 + mPaintImageView.getWidth() / 2,
                         location[1] - mPaintPopupWindow.getHeight() - mPaintImageView.getHeight() / 2);*/
 
-                mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                } else {
+                    mPaintPopupWindow.showAtLocation(mStrokeView, Gravity.NO_GRAVITY,location[0], location[1]);
+                }
                 break;
             case 1:
-                mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                } else {
+                    mEraserPopupWindow.showAtLocation(mEraserView, Gravity.NO_GRAVITY,location[0], location[1]);
+                }
                 break;
             case 2:
                 //mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
-                mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                } else {
+                    mColorPopupWindow.showAtLocation(mStrokeView, Gravity.NO_GRAVITY,location[0], location[1]);
+                }
                 break;
 
         }
     }
 
-    private ImageView mPaintWidthCircle, mPaintAlphaCircle, mMoreColorImg;
+    private ImageView mPaintWidthCircle, mPaintAlphaCircle;
     private SeekBar mPaintWidthSeekBar, mPaintAlphaSeekBar;
     private RadioGroup mPaintColorRG;
+    private AppCompatImageView mMoreColorImg;
 
     private void initPaintPop() {
         if (mPaintPopupWindow != null) {
