@@ -18,7 +18,8 @@
     <string name="menu">菜单</string>
     <string name="menu_settings">设置</string>
     <string name="menu_preview">预览</string>
-    <string name="menu_record">录像</string>
+    <string name="menu_record">录屏</string>
+    <string name="menu_share">分享</string>
 
     <string name="record_time_def">00:00</string>
 
@@ -35,16 +36,24 @@
         <item>保存全图</item>
     </string-array>
     <string name="saving">正在保存&#8230;</string>
-    <string name="save_success">保存成功.</string>
-    <string name="save_failed">保存失败.</string>
+    <string name="save_success">保存成功</string>
+    <string name="save_failed">保存失败</string>
 
     <string name="storage_accress">该应用在使用过程中需要访问SD卡进行数据保存,您是否同意?</string>
     <string name="agree">同意</string>
     <string name="disagree">不同意</string>
 
     <string name="not_draw_yet">您还没有绘图.</string>
-    <string name="need_storage_mission">存储权限未开启,请到系统设置开启存储权限.</string>
+    <string name="need_storage_mission">存储权限未开启,请到系统设置开启存储权限</string>
     <string name="recording">正在录屏&#8230;</string>
 
     <string name="exit_tip">确定要退出该应用?</string>
+
+    <string name="share_type">选择分享类型:</string>
+    <string-array name="share_sel">
+        <item>分享当前窗口</item>
+        <item>分享全图</item>
+    </string-array>
+    <string name="generating">正在生成图片&#8230;</string>
+    <string name="generate_failed">图片生成失败</string>
 </resources>

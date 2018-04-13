@@ -10,4 +10,6 @@
     <color name="color_yellow_paint">#FFBB33</color>
     <color name="color_enter_enable">#1CA9BF</color>
     <color name="color_enter_disable">#B4B4B4</color>
+    <color name="color_tools_bg">#53a8e4</color>
+    <color name="color_record_bg">#33000000</color>
 </resources>

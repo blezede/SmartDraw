@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white">
 
     <FrameLayout
@@ -14,27 +13,26 @@
         <com.step.smart.palette.widget.PaletteView
             android:id="@+id/frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <LinearLayout
             android:id="@+id/tools"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/tools_h"
+            android:layout_height="60dp"
             android:layout_gravity="bottom|start"
-            android:layout_margin="@dimen/tools_margin"
-            android:background="@drawable/suspend_icon_shape"
+            android:layout_margin="10dp"
             android:clipChildren="false"
-            android:elevation="@dimen/tools_elevation"
             android:minHeight="@dimen/tools_min_w"
             android:minWidth="@dimen/tools_min_h"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="10dp">
 
             <RelativeLayout
                 android:id="@+id/save"
                 android:layout_width="@dimen/tools_item_layout_w"
                 android:layout_height="@dimen/tools_item_layout_h"
-                android:layout_marginStart="@dimen/tools_item_margin_s"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/tools_item_margin_s"
                 android:gravity="center">
 
                 <ImageView
@@ -48,8 +46,8 @@
                 android:id="@+id/stroke"
                 android:layout_width="@dimen/tools_item_layout_w"
                 android:layout_height="@dimen/tools_item_layout_h"
-                android:background="@drawable/btn_sel_bg"
                 android:layout_gravity="center_vertical"
+                android:background="@drawable/btn_sel_bg"
                 android:gravity="center">
 
                 <android.support.v7.widget.AppCompatImageView
@@ -107,8 +105,8 @@
                 android:id="@+id/redo"
                 android:layout_width="@dimen/tools_item_layout_w"
                 android:layout_height="@dimen/tools_item_layout_h"
-                android:layout_marginEnd="@dimen/tools_item_margin_e"
                 android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/tools_item_margin_e"
                 android:gravity="center">
 
                 <ImageView
@@ -124,58 +122,54 @@
             android:id="@+id/choose_bg_btn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="40dp"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="40dp"
+            app:srcCompat="@drawable/ic_droplet"
             fab:fab_colorNormal="#FAFAFA"
             fab:fab_colorPressed="#F5F5F5"
             fab:fab_colorRipple="#FFFFFF"
-            fab:fab_shadowColor="#000"
-            app:srcCompat="@drawable/ic_droplet"
-            fab:fab_size="mini"
-            android:elevation="10dp"
-            />
+            fab:fab_size="mini" />
 
         <LinearLayout
             android:id="@+id/record_status"
             android:layout_width="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="10dp"
-            android:layout_height="30dp"
-            android:orientation="horizontal"
+            android:layout_height="50dp"
             android:layout_gravity="top|end"
-            android:visibility="gone"
-            android:elevation="10dp"
-            android:background="@drawable/record_bg">
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:visibility="invisible">
+
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="3dp"
-                app:srcCompat="@drawable/ic_stop"/>
+                app:srcCompat="@drawable/ic_stop" />
+
             <TextView
                 android:id="@+id/record_time"
                 android:layout_width="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:maxLines="1"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="3dp"
+                android:maxLines="1"
                 android:text="@string/record_time_def"
-                android:layout_height="wrap_content" />
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingRight="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
-            android:elevation="10dp"
-            fab:menu_labels_ellipsize="end"
-            fab:menu_labels_singleLine="true"
+            android:paddingRight="10dp"
             fab:menu_backgroundColor="#ccffffff"
-            fab:menu_fab_label="@string/menu">
+            fab:menu_fab_label="@string/menu"
+            fab:menu_labels_ellipsize="end"
+            fab:menu_labels_singleLine="true">
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab1"
@@ -183,24 +177,31 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_record"
                 android:visibility="gone"
-                fab:fab_size="mini"
-                fab:fab_label="@string/menu_record" />
+                fab:fab_label="@string/menu_record"
+                fab:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_preview"
-                fab:fab_size="mini"
-                fab:fab_label="@string/menu_preview" />
+                fab:fab_label="@string/menu_preview"
+                fab:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_settings"
-                fab:fab_size="mini"
-                fab:fab_label="@string/menu_settings" />
+                fab:fab_label="@string/menu_settings"
+                fab:fab_size="mini" />
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_share"
+                fab:fab_label="@string/menu_share"
+                fab:fab_size="mini" />
         </com.github.clans.fab.FloatingActionMenu>
     </FrameLayout>
 

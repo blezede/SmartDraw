@@ -20,7 +20,7 @@ import com.step.smart.palette.Constant.PreferenceConstant;
 import com.step.smart.palette.manager.FrameSizeManager;
 import com.step.smart.palette.utils.BitmapUtils;
 import com.step.smart.palette.utils.Preferences;
-import com.step.smart.palette.utils.StroageUtils;
+import com.step.smart.palette.utils.StorageUtils;
 
 /**
  * Created by weflow on 2018/3/21.
@@ -141,14 +141,22 @@ public class PaletteView extends FrameLayout {
     }
 
     public String screenShot(boolean wholeScreen) {
+        return this.screenShot(wholeScreen, false);
+    }
+
+    public String screenShot(boolean wholeScreen, boolean isTemp) {
         long start = System.currentTimeMillis();
         //String path = getContext().getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".png";
-        String dirPath = StroageUtils.getRecordImgDirPath();
+        String dirPath = StorageUtils.getRecordImgDirPath();
         boolean existsDir = FileUtils.createOrExistsDir(dirPath);
         if (!existsDir) {
             return "";
         }
-        String path = dirPath + System.currentTimeMillis() + ".png";
+        String fileName = System.currentTimeMillis() + ".png";
+        if (isTemp) {
+            fileName = StorageUtils.TEMP_IMG;
+        }
+        String path = dirPath + fileName;
         if (this.mFrame == null || this.mFrameManager == null) {
             return "";
         }

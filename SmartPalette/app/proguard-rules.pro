@@ -136,3 +136,16 @@
 -keep public class [com.step.smart.palette].R$*{
 public static final int *;
 }
+
+# 嵌入广点通sdk时必须添加
+-keep class com.qq.e.** {
+    public protected *;
+}
+
+# 嵌入广点通sdk时必须添加
+-keep class android.support.v4.**{ *;}
+
+# Demo工程里用到了AQuery库，因此需要添加下面的配置
+# 请开发者根据自己实际情况给第三方库的添加相应的混淆设置
+-dontwarn com.androidquery.**
+-keep class com.androidquery.** { *;}

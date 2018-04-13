@@ -22,6 +22,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -51,7 +52,10 @@ import com.step.smart.palette.message.MessageEvent;
 import com.step.smart.palette.services.RecordService;
 import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.utils.Preferences;
+import com.step.smart.palette.utils.ShareUtils;
 import com.step.smart.palette.widget.PaletteView;
+import com.step.smart.palette.widget.ShadowDrawable;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -181,6 +185,23 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         mPaletteView.setBackgroundColor(mDefaultBgColor);
         flushStrokeColor();
         initMenu();
+
+        ViewTreeObserver observer = mLinearLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mLinearLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                mLinearLayout.setBackground(new ShadowDrawable(mLinearLayout,
+                        getResources().getColor(R.color.color_tools_bg)));
+            }
+        });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecordView.setBackground(new ShadowDrawable(mRecordView, getResources().getColor(R.color.color_record_bg)));
+            }
+        }, 2000);
     }
 
     private void initColorPop() {
@@ -257,7 +278,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         //mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
     }
 
-    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo, R.id.fab1, R.id.fab2, R.id.fab3, R.id.record_status, R.id.choose_bg_btn})
+    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo, R.id.fab1, R.id.fab2, R.id.fab3, R.id.fab4, R.id.record_status, R.id.choose_bg_btn})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
@@ -327,8 +348,16 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 mFloatingMenu.close(true);
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
+            case R.id.fab4://share
+                mFloatingMenu.close(true);
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
+                    ToastUtils.showShort(R.string.need_storage_mission);
+                    return;
+                }
+                showShareDialog();
+                break;
             case R.id.record_status:
-                mRecordView.setVisibility(View.GONE);
+                mRecordView.setVisibility(View.INVISIBLE);
                 boolean result = mHelper.stopRecord();
                 if (result) {
                     ToastUtils.showShort(R.string.save_success);
@@ -722,7 +751,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             if (result) {
                 mRecordView.setVisibility(View.VISIBLE);
             } else {
-                mRecordView.setVisibility(View.GONE);
+                mRecordView.setVisibility(View.INVISIBLE);
             }
             mRecordTimeTextView.setText(R.string.record_time_def);
         }
@@ -848,5 +877,51 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 })
                 .negativeText(R.string.cancel)
                 .show();
+    }
+
+    private void showShareDialog() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.share_type)
+                .items(R.array.share_sel)
+                //.itemsDisabledIndices(1)
+                .itemsCallbackSingleChoice(
+                        0, new MaterialDialog.ListCallbackSingleChoice() {
+                            @Override
+                            public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                                if (which == 0) {
+                                    shareRecordImg(false);
+                                } else if(which == 1) {
+                                    shareRecordImg(true);
+                                }
+                                return true;
+                            }
+                        })
+                .positiveText(R.string.confirm)
+                .show();
+    }
+
+    private void shareRecordImg(final boolean wholeCanvas) {
+        showProgressDialog(R.string.generating);
+        new AsyncTask<Void, Void, String>() {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                if (mPaletteView == null) {
+                    return "";
+                }
+                return mPaletteView.screenShot(wholeCanvas, true);
+            }
+
+            @Override
+            protected void onPostExecute(String aVoid) {
+                dismissProgressDialog();
+                if (TextUtils.isEmpty(aVoid)) {
+                    ToastUtils.showShort(R.string.generate_failed);
+                    return;
+                } else {
+                    ShareUtils.shareFile(getApplicationContext(), aVoid);
+                }
+            }
+        }.execute();
     }
 }

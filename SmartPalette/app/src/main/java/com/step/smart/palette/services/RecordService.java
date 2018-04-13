@@ -21,7 +21,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import com.blankj.utilcode.util.TimeUtils;
 
-import com.step.smart.palette.utils.StroageUtils;
+import com.step.smart.palette.utils.StorageUtils;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -115,7 +115,7 @@ public class RecordService extends Service {
         checkSpaceTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                boolean hasEnoughSpace = StroageUtils.hasEnoughSpaceForWrite(50 * StroageUtils.M);
+                boolean hasEnoughSpace = StorageUtils.hasEnoughSpaceForWrite(50 * StorageUtils.M);
                 if (!hasEnoughSpace) {
                     stopRecord();
                 }
@@ -196,7 +196,7 @@ public class RecordService extends Service {
 
     public String getSaveDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            String rootDir = StroageUtils.getRecordVideoDirPath();
+            String rootDir = StorageUtils.getRecordVideoDirPath();
             Log.i(TAG, "rootDir:" + rootDir);
 
             File file = new File(rootDir);
@@ -215,8 +215,8 @@ public class RecordService extends Service {
     }
 
     public void broadcastRecord(Activity activity, int code) {
-        if (Build.VERSION.SDK_INT > 21) {
-            boolean hasEnoughSpace = StroageUtils.hasEnoughSpaceForWrite(50 * StroageUtils.M);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            boolean hasEnoughSpace = StorageUtils.hasEnoughSpaceForWrite(50 * StorageUtils.M);
             Log.e(TAG, "broadcastRecord --> hasEnoughSpace = " + hasEnoughSpace);
             if (!hasEnoughSpace) {
                 return;

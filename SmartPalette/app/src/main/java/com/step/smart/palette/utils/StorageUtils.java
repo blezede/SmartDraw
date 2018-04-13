@@ -9,10 +9,11 @@ import java.io.File;
  * Created by weflow on 2018/4/8.
  */
 
-public class StroageUtils {
+public class StorageUtils {
 
     public final static long K = 1024;
     public final static long M = 1024 * 1024;
+    public final static String TEMP_IMG = "Temp.png";
 
     public static long getResidualSpace(String directoryPath) {
         try {
