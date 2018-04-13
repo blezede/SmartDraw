@@ -56,4 +56,5 @@
     </string-array>
     <string name="generating">正在生成图片&#8230;</string>
     <string name="generate_failed">图片生成失败</string>
+    <string name="welcome">欢迎</string>
 </resources>

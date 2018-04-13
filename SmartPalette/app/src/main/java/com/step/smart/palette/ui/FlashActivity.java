@@ -1,6 +1,7 @@
 package com.step.smart.palette.ui;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.TextView;
@@ -24,16 +25,10 @@ public class FlashActivity extends BaseActivity {
     @BindView(R.id.time_tv)
     TextView mTimeTextView;
     private Timer mTimer;
-    private int mTime = 6;
+    private int mTime = 3;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    if (mTime >= 0)
-                        mTimeTextView.setText(mTime + "");
-                    break;
-            }
         }
     };
 
@@ -45,8 +40,15 @@ public class FlashActivity extends BaseActivity {
     @Override
     protected void _init() {
         timer();
+        typefaceSetting();
     }
-
+    private void typefaceSetting() {
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "FZTJLSJW.TTF");
+        if (typeface == null) {
+            return;
+        }
+        mTimeTextView.setTypeface(typeface);
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -63,7 +65,6 @@ public class FlashActivity extends BaseActivity {
             @Override
             public void run() {
                 mTime--;
-                mHandler.sendEmptyMessage(0);
                 if (mTime <= 0) {
                     cancelTimer();
                     mHandler.post(mEnterNextRunnable);
