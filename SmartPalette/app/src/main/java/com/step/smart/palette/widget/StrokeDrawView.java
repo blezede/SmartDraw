@@ -94,6 +94,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
             mBufferCanvas.drawOval(p.rect, p.paint);
         } else if (p.type == LineType.RECTANGLE) {
             mBufferCanvas.drawRect(p.rect, p.paint);
+        } else if (p.type == LineType.PHOTO) {
+            mBufferCanvas.drawBitmap(p.bitmap, p.matrix, null);
         }
         invalidate();
     }
@@ -108,6 +110,8 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
                 mBufferCanvas.drawOval(p.rect, p.paint);
             } else if (p.type == LineType.RECTANGLE) {
                 mBufferCanvas.drawRect(p.rect, p.paint);
+            } else if (p.type == LineType.PHOTO) {
+                mBufferCanvas.drawBitmap(p.bitmap, p.matrix, null);
             }
         }
         invalidate();
@@ -143,7 +147,19 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
     }
 
     public void clear() {
+        for (PathEntity p : mPaletteData.pathList) {
+            if (p.type == LineType.PHOTO && p.bitmap != null) {
+                p.bitmap.recycle();
+                p.bitmap = null;
+            }
+        }
         mPaletteData.pathList.clear();
+        for (PathEntity p : mPaletteData.pathList) {
+            if (p.type == LineType.PHOTO && p.bitmap != null) {
+                p.bitmap.recycle();
+                p.bitmap = null;
+            }
+        }
         mPaletteData.undoList.clear();
         reFlush();
         if (mPaletteInterface != null)
@@ -180,5 +196,25 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
 
     public boolean isEmpty() {
         return mPaletteData.pathList.size() <= 0;
+    }
+
+    @Override
+    public void onPhotoTypeExited() {
+        if (mPaletteInterface != null)
+            mPaletteInterface.onPhotoTypeExited();
+    }
+
+    @Override
+    public void syncPhotoRecord(PathEntity entity) {
+        if (mBufferBitmap == null) {
+            initBuffer();
+        }
+        if (entity == null) {
+            return;
+        }
+        mPaletteData.pathList.add(entity);
+        //invalidate();
+        flush();
+        mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
 }

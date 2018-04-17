@@ -130,6 +130,18 @@
             fab:fab_colorRipple="#FFFFFF"
             fab:fab_size="mini" />
 
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/choose_photo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="120dp"
+            app:srcCompat="@drawable/ic_droplet"
+            fab:fab_colorNormal="#458e48"
+            fab:fab_colorPressed="#5b0e0e"
+            fab:fab_colorRipple="#1c3acf"
+            fab:fab_size="mini" />
+
         <LinearLayout
             android:id="@+id/record_status"
             android:layout_width="wrap_content"

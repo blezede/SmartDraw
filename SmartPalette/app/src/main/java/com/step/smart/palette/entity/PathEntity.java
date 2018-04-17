@@ -1,5 +1,7 @@
 package com.step.smart.palette.entity;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -28,8 +30,9 @@ public class PathEntity {
         this.type = type;
     }
 
-    public int textOffX;
-    public int textOffY;
-    public int textWidth;//文字位置
+    public Bitmap bitmap;//图形
+    public Matrix matrix;//图形
+    public RectF photoRectSrc = new RectF();
+    public float scaleMax = 3;
 
 }

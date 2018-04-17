@@ -31,7 +31,7 @@ public class PaletteView extends FrameLayout {
     private static final String TAG = "PaletteView";
     private PaletteSurfaceView mPaletteSurfaceView;
     private StrokeDrawView mStrokeDrawView;
-    private FrameSizeManager mFrameManager;
+    public FrameSizeManager mFrameManager;
     private PaletteInterface mPaletteInterface;
     private FrameLayout mFrame;
     private PaletteStrokeView mPaletteStrokeView;
@@ -179,7 +179,7 @@ public class PaletteView extends FrameLayout {
             Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.ARGB_4444);
             Canvas currCanvas = new Canvas(currBmp);
             currCanvas.drawBitmap(bmp,
-                    new Rect((int)(Math.abs(this.mFrame.getX())), (int)Math.abs(this.mFrame.getY()), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameWidth), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameHeight)),
+                    new Rect((int)(Math.abs(this.mFrame.getX())), (int)Math.abs(this.mFrame.getY()), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameWidth), (int)(Math.abs(this.mFrame.getY()) + this.mFrameManager.frameHeight)),
                     new Rect(0, 0, this.mFrameManager.frameWidth, this.mFrameManager.frameHeight),
                     null);
             byte[] data = BitmapUtils.bitmap2Bytes(currBmp, 100);
@@ -298,5 +298,15 @@ public class PaletteView extends FrameLayout {
         void onUndoRedoCountChanged(int redo, int undo);
 
         boolean isHighLighter();
+
+        void onPhotoTypeExited();
+    }
+
+    public void addPhotoByPath(String path) {
+        mPaletteStrokeView.addPhotoByPath(path);
+    }
+
+    public void exitPhotoMode(boolean flush) {
+        mPaletteStrokeView.exitPhotoMode(flush);
     }
 }

@@ -9,12 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,10 +39,12 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -59,6 +65,10 @@ import com.step.smart.palette.widget.ShadowDrawable;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import permissions.dispatcher.NeedsPermission;
@@ -278,7 +288,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         //mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
     }
 
-    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo, R.id.fab1, R.id.fab2, R.id.fab3, R.id.fab4, R.id.record_status, R.id.choose_bg_btn})
+    @OnClick({R.id.save, R.id.stroke, R.id.move, R.id.eraser, R.id.undo, R.id.redo, R.id.fab1, R.id.fab2, R.id.fab3, R.id.fab4, R.id.record_status, R.id.choose_bg_btn, R.id.choose_photo})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
@@ -367,9 +377,35 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             case R.id.choose_bg_btn:
                 showColorChooseDialog();
                 break;
+            case R.id.choose_photo:
+                mPaletteView.exitPhotoMode(true);
+                mLineType = LineType.PHOTO;
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (intent.resolveActivity(this.getPackageManager()) != null) {
+                        String path = this.getExternalCacheDir() + File.separator + "temp.png";
+                        FileUtils.createOrExistsFile(path);
+                        mTmpFile = new File(path);
+                    if (mTmpFile.exists()) {
+                        Uri uri = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            uri = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", mTmpFile);
+                        } else {
+                            uri = Uri.fromFile(mTmpFile);
+                        }
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        startActivityForResult(intent, REQUEST_CAMERA);
+                    } else {
+                        ToastUtils.showShort("error");
+                    }
+                } else {
+                    ToastUtils.showShort("no camera");
+                }
+                break;
         }
     }
 
+    private static final int REQUEST_CAMERA = 101;
+    private File mTmpFile;
     private void initMenu() {
         mFloatingMenu.setClosedOnTouchOutside(true);
         //mFloatingMenu.hideMenuButton(false);
@@ -755,7 +791,14 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 mRecordView.setVisibility(View.INVISIBLE);
             }
             mRecordTimeTextView.setText(R.string.record_time_def);
+        } else if (requestCode == REQUEST_CAMERA) {
+            if (resultCode == RESULT_OK && mTmpFile.exists()) {
+                mPaletteView.addPhotoByPath(mTmpFile.getAbsolutePath());
+            } else {
+                mLineType = mStrokeLineType;
+            }
         }
+
     }
 
     public Bitmap getScreenShotBitmap() {
@@ -924,5 +967,10 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 }
             }
         }.execute();
+    }
+
+    @Override
+    public void onPhotoTypeExited() {
+        mLineType = mStrokeLineType;
     }
 }
