@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmartPen</string>
+    <string name="app_name">WriteSpace</string>
 
     <string name="paint_type">Type</string>
     <string name="paint_size">Size</string>

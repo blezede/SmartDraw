@@ -6,18 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.step.smart.palette.Constant.DrawMode;
 import com.step.smart.palette.Constant.LineType;
@@ -138,6 +134,7 @@ public class PaletteStrokeView extends View {
         switch (mPaletteInterface.getCurrStrokeType()) {
             case DRAW:
             case LINE:
+                RectF pathR = new RectF(mCurrX, mCurrY, mCurrX, mCurrY);
                 mCurrPathEntity.paint = new Paint(mPaint);
                 mCurrPathEntity.paint.setColor(mPaletteInterface.getStrokeColor());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
@@ -145,6 +142,7 @@ public class PaletteStrokeView extends View {
                 mCurrPathEntity.paint.setMaskFilter(mPaletteInterface.isHighLighter() ? mHighLightBlur : mDefaultBlur);
                 mCurrPathEntity.path = new Path();
                 mCurrPathEntity.path.moveTo(mCurrX, mCurrY);
+                mCurrPathEntity.pathRect = pathR;
                 break;
             case CIRCLE:
             case RECTANGLE:
@@ -155,6 +153,7 @@ public class PaletteStrokeView extends View {
                 mCurrPathEntity.paint.setAlpha(mPaletteInterface.getStrokeAlpha());
                 mCurrPathEntity.paint.setStrokeWidth(mPaletteInterface.getStrokeWidth());
                 mCurrPathEntity.paint.setMaskFilter(mPaletteInterface.isHighLighter() ? mHighLightBlur : mDefaultBlur);
+                mCurrPathEntity.pathRect = r;
                 break;
             case ERASER:
                 mCurrPathEntity.paint = new Paint(mEraserPaint);
@@ -171,6 +170,12 @@ public class PaletteStrokeView extends View {
         switch (mPaletteInterface.getCurrStrokeType()) {
             case DRAW:
                 mCurrPathEntity.path.quadTo(mDownX, mDownY, (mCurrX + mDownX) / 2, (mCurrY + mDownY) / 2);
+                if(mCurrPathEntity.pathRect != null) {
+                    mCurrPathEntity.pathRect.set(mDownX < mCurrPathEntity.pathRect.left ? mDownX : mCurrPathEntity.pathRect.left,
+                            mDownY < mCurrPathEntity.pathRect.top ? mDownY : mCurrPathEntity.pathRect.top,
+                            mDownX > mCurrPathEntity.pathRect.right ? mDownX : mCurrPathEntity.pathRect.right,
+                            mDownY < mCurrPathEntity.pathRect.bottom ? mCurrPathEntity.pathRect.bottom : mDownY);
+                }
                 break;
             case ERASER:
                 mCurrPathEntity.path.quadTo(mDownX, mDownY, (mCurrX + mDownX) / 2, (mCurrY + mDownY) / 2);
@@ -222,6 +227,9 @@ public class PaletteStrokeView extends View {
         if (mCurrPathEntity != null) {
             if (mCurrPathEntity.type == LineType.DRAW || mCurrPathEntity.type == LineType.LINE) {
                 canvas.drawPath(mCurrPathEntity.path, mCurrPathEntity.paint);
+                if (mCurrPathEntity.pathRect != null) {
+                    canvas.drawRect(mCurrPathEntity.pathRect, mCurrPathEntity.paint);
+                }
             } else if (mCurrPathEntity.type == LineType.CIRCLE) {
                 canvas.drawOval(mCurrPathEntity.rect, mCurrPathEntity.paint);
             } else if (mCurrPathEntity.type == LineType.RECTANGLE) {

@@ -1,9 +1,12 @@
 package com.step.smart.palette.ui;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
+import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.widget.TextView;
 
 import com.step.smart.palette.Constant.PreferenceConstant;
@@ -23,9 +26,11 @@ import butterknife.BindView;
 public class FlashActivity extends BaseActivity {
 
     @BindView(R.id.time_tv)
-    TextView mTimeTextView;
+    TextView mStartTextView;
     private Timer mTimer;
     private int mTime = 3;
+    @BindView(R.id.flash_icon)
+    AppCompatImageView mFlashIconView;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -41,14 +46,26 @@ public class FlashActivity extends BaseActivity {
     protected void _init() {
         timer();
         typefaceSetting();
+        //flushIconView();
     }
+
     private void typefaceSetting() {
         Typeface typeface = Typeface.createFromAsset(getAssets(), "FZTJLSJW.TTF");
         if (typeface == null) {
             return;
         }
-        mTimeTextView.setTypeface(typeface);
+        mStartTextView.setTypeface(typeface);
     }
+
+    private void flushIconView() {
+        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_launcher_foreground, getTheme());
+        if (vectorCompat == null) {
+            return;
+        }
+        vectorCompat.setTint(Color.BLACK);
+        mFlashIconView.setImageDrawable(vectorCompat);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -56,7 +73,6 @@ public class FlashActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
     }
 
     private void timer() {

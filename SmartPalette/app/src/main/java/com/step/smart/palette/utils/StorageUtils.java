@@ -14,6 +14,7 @@ public class StorageUtils {
     public final static long K = 1024;
     public final static long M = 1024 * 1024;
     public final static String TEMP_IMG = "Temp.png";
+    public final static String RECORD_DIR_NAME = "Smart_Record";
 
     public static long getResidualSpace(String directoryPath) {
         try {
@@ -34,10 +35,10 @@ public class StorageUtils {
     }
 
     public static String getRecordVideoDirPath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "smart_palette_record" + File.separator + "video" + File.separator;
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + RECORD_DIR_NAME + File.separator + "video" + File.separator;
     }
 
     public static String getRecordImgDirPath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "smart_palette_record" + File.separator + "image" + File.separator;
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + RECORD_DIR_NAME + File.separator + "image" + File.separator;
     }
 }

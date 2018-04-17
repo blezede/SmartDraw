@@ -22,6 +22,8 @@ public class PathEntity {
     public String text;//文字
     public TextPaint textPaint;//笔类
 
+    public RectF pathRect;//路径的rect区域
+
     public PathEntity(LineType type) {
         this.type = type;
     }

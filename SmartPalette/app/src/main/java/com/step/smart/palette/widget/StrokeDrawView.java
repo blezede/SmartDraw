@@ -134,12 +134,12 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
         }
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             mPaletteData.pathList.add(entity);
+            if (mPaletteInterface != null) {
+                mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
+            }
         }
         flush();
         //invalidate();
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
-        }
     }
 
     public void clear() {

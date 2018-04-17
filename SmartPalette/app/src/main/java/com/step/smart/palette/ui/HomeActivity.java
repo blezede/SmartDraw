@@ -419,6 +419,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
     @Override
     public void onUndoRedoCountChanged(int redo, int undo) {
+        Log.e("Home", "onUndoRedoCountChanged --> redo = " + redo + ", undo = " + undo);
         if (redo > 0) {
             mRedoImageView.setImageResource(R.drawable.redo);
         } else {
