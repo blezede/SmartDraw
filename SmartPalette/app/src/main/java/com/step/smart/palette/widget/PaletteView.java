@@ -283,6 +283,10 @@ public class PaletteView extends FrameLayout {
 
     }
 
+    public int getPicturesCount() {
+        return mStrokeDrawView.getPicturesCount();
+    }
+
     public interface PaletteInterface{
 
         DrawMode getCurrentMode();

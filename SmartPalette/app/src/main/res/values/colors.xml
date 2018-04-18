@@ -12,4 +12,9 @@
     <color name="color_enter_disable">#B4B4B4</color>
     <color name="color_tools_bg">#53a8e4</color>
     <color name="color_record_bg">#33000000</color>
+    <color name="color_default_bg">#E0E0E0</color>
+
+    <color name="color_bg_normal"></color>
+    <color name="color_bg_pressed"></color>
+    <color name="color_bg_ripple"></color>
 </resources>

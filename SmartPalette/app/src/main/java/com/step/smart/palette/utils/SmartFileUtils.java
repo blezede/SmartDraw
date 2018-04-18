@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,6 +29,58 @@ import java.util.Locale;
  */
 
 public class SmartFileUtils {
+
+    /**
+     * Try to return the absolute file path from the given Uri
+     *
+     * @param context
+     * @param uri
+     * @return the file path or null
+     */
+    public static String getRealFileInfo(final Context context, final Uri uri) {
+        if (null == uri) return "";
+        final String scheme = uri.getScheme();
+        String data = "";
+        if (scheme == null) {
+            data = uri.getPath();
+            if (isFileExist(data)) {
+                return data;
+            }
+        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            data = uri.getPath();
+            if (isFileExist(data)) {
+                return data;
+            }
+        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(uri, FILE_PROJECTION, null, null, null);
+                if (null != cursor) {
+                    if (cursor.moveToFirst()) {
+                        String path = cursor.getString(cursor.getColumnIndexOrThrow(FILE_PROJECTION[0]));
+                        String name = cursor.getString(cursor.getColumnIndexOrThrow(FILE_PROJECTION[1]));
+                        long size = cursor.getLong(cursor.getColumnIndexOrThrow(FILE_PROJECTION[2]));
+                        if (isFileExist(path)) {
+                            return path;
+                        }
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                return "";
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+        return "";
+    }
+
+    private static final String[] FILE_PROJECTION = {
+            MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.SIZE,
+            MediaStore.Files.FileColumns._ID};
 
     public static void getSpecifiedTypeFiles(Context context, String[] extension) {
         //从外存中获取

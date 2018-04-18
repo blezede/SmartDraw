@@ -57,4 +57,7 @@
     <string name="generating">Generating the image&#8230;</string>
     <string name="generate_failed">Generate failed</string>
     <string name="welcome">Welcome</string>
+
+    <string name="choose_photo">Choose a picture</string>
+    <string name="over_img_limit">You have inserted too many pictures</string>
 </resources>

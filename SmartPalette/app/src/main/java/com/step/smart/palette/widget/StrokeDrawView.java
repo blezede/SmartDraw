@@ -217,4 +217,19 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
         flush();
         mPaletteInterface.onUndoRedoCountChanged(mPaletteData.undoList.size(), mPaletteData.pathList.size());
     }
+
+    public int getPicturesCount() {
+        int count = 0;
+        for (PathEntity p : mPaletteData.pathList) {
+            if (p.type == LineType.PHOTO) {
+                count ++;
+            }
+        }
+        for (PathEntity p : mPaletteData.undoList) {
+            if (p.type == LineType.PHOTO) {
+                count ++;
+            }
+        }
+        return count;
+    }
 }

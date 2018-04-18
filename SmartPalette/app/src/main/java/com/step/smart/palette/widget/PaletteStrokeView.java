@@ -162,8 +162,11 @@ public class PaletteStrokeView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mPaletteInterface != null && (mPaletteInterface.getCurrentMode() == DrawMode.PHOTO || mPaletteInterface.getCurrentMode() == DrawMode.MOVE)) {
+        if (mPaletteInterface != null && mPaletteInterface.getCurrentMode() == DrawMode.MOVE) {
             return false;
+        }
+        if (mPaletteInterface != null && mPaletteInterface.getCurrentMode() == DrawMode.NONE) {
+            return true;
         }
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         mCurrX = event.getX();
@@ -176,12 +179,10 @@ public class PaletteStrokeView extends View {
                 break;
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
-                //flush((int) mCurrX, (int) mCurrY);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
-                //flush((int) mCurrX, (int) mCurrY);
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
@@ -239,7 +240,8 @@ public class PaletteStrokeView extends View {
                 if (isInPhotoRect(mCurrPathEntity, downPoint)) {//再判断是否点击了当前图片
                     actionMode = ACTION_DRAG;
                 } else {
-                    exitPhotoMode(false);
+                    //exitPhotoMode(false);
+                    actionMode = ACTION_NONE;
                 }
                 break;
         }
@@ -255,6 +257,9 @@ public class PaletteStrokeView extends View {
             mSyncDrawInterface.syncPhotoRecord(mCurrPathEntity);
         }
         mCurrPathEntity = null;
+        if (flush) {
+            invalidate();
+        }
     }
 
     private void onTouchMove(MotionEvent event) {
@@ -467,10 +472,10 @@ public class PaletteStrokeView extends View {
     public void drawMarks(Canvas canvas, float[] photoCorners) {
         float x;
         float y;
-        x = photoCorners[0] - markerCopyRect.width() / 2;
-        y = photoCorners[1] - markerCopyRect.height() / 2;
-        markerCopyRect.offsetTo(x, y);
-        canvas.drawBitmap(mirrorMarkBM, x, y, null);
+        //x = photoCorners[0] - markerCopyRect.width() / 2;
+        //y = photoCorners[1] - markerCopyRect.height() / 2;
+        //markerCopyRect.offsetTo(x, y);
+        //canvas.drawBitmap(mirrorMarkBM, x, y, null);
 
         x = photoCorners[2] - markerDeleteRect.width() / 2;
         y = photoCorners[3] - markerDeleteRect.height() / 2;
@@ -505,14 +510,14 @@ public class PaletteStrokeView extends View {
             actionMode = ACTION_NONE;
             return true;
         }
-        if (markerCopyRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
+        /*if (markerCopyRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
             PathEntity newRecord = initPhotoRecord(mCurrPathEntity.bitmap);
             newRecord.matrix = new Matrix(mCurrPathEntity.matrix);
             newRecord.matrix.postTranslate(SizeUtils.dp2px(20f), SizeUtils.dp2px(20));//偏移小段距离以分辨新复制的图片
             mCurrPathEntity = newRecord;
             actionMode = ACTION_NONE;
             return true;
-        }
+        }*/
         if (markerResetRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
             mCurrPathEntity.matrix.reset();
             mCurrPathEntity.matrix.setTranslate(getWidth() / 2 - mCurrPathEntity.photoRectSrc.width() / 2,
@@ -621,6 +626,9 @@ public class PaletteStrokeView extends View {
     }
 
     public void addPhotoByPath(String path) {
+        if (mCurrPathEntity != null && mCurrPathEntity.type == LineType.PHOTO) {
+            exitPhotoMode(true);
+        }
         Bitmap sampleBM = getSampleBitMap(path);
         addPhotoByBitmap(sampleBM);
     }

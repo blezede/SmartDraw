@@ -59,6 +59,7 @@ import com.step.smart.palette.services.RecordService;
 import com.step.smart.palette.utils.ColorsUtil;
 import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.utils.ShareUtils;
+import com.step.smart.palette.utils.SmartFileUtils;
 import com.step.smart.palette.widget.PaletteView;
 import com.step.smart.palette.widget.ShadowDrawable;
 
@@ -78,6 +79,7 @@ import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.PermissionUtils;
 import permissions.dispatcher.RuntimePermissions;
+
 import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
 @RuntimePermissions
@@ -115,6 +117,8 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     TextView mRecordTimeTextView;
     @BindView(R.id.choose_bg_btn)
     FloatingActionButton mColorFloatingBtn;
+    @BindView(R.id.container)
+    View mContainerView;
 
     private int mPenColor = Color.BLACK;
     private float mStrokeWidth = 5f;
@@ -124,7 +128,11 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     private LineType mStrokeLineType = LineType.DRAW;
     private PopupWindow mPaintPopupWindow, mEraserPopupWindow, mColorPopupWindow;
     private RecordService.Helper mHelper;
-    private int mDefaultBgColor = Color.parseColor("#E0E0E0");
+    private int mDefaultBgColor = Color.parseColor("#78909C");
+    private static final int REQUEST_CAMERA = 101;
+    private static final int REQUEST_PICTURE = 102;
+    private File mTmpFile;
+
 
     @Override
     protected int getContentViewRes() {
@@ -246,8 +254,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                     holder = new ViewHolder();
                     holder.color = convertView.findViewById(R.id.color);
                     convertView.setTag(holder);
-                }
-                else {
+                } else {
                     holder = (ViewHolder) convertView.getTag();
                 }
                 holder.color.setBackgroundColor(Color.parseColor(ColorsUtil.sColorValues[position]));
@@ -292,12 +299,13 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
-                if (mPaletteView.isEmpty()) {
-                    ToastUtils.showShort(R.string.not_draw_yet);
+                mPaletteView.exitPhotoMode(true);
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})) {
+                    ToastUtils.showShort(R.string.need_storage_mission);
                     return;
                 }
-                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
-                    ToastUtils.showShort(R.string.need_storage_mission);
+                if (mPaletteView.isEmpty()) {
+                    ToastUtils.showShort(R.string.not_draw_yet);
                     return;
                 }
                 showSaveDialog();
@@ -309,6 +317,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 mPaletteView.redo();
                 break;
             case R.id.stroke:
+                mPaletteView.exitPhotoMode(true);
                 releaseSelStatus();
                 flushStrokeColor();
                 mStrokeView.setBackgroundResource(R.drawable.btn_sel_bg);
@@ -320,6 +329,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showParamsPopupWindow(mStrokeView, 0);
                 break;
             case R.id.eraser:
+                mPaletteView.exitPhotoMode(true);
                 releaseSelStatus();
                 mEraserView.setBackgroundResource(R.drawable.btn_sel_bg);
                 mLineType = LineType.ERASER;
@@ -330,6 +340,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showParamsPopupWindow(mEraserView, 1);
                 break;
             case R.id.move:
+                mPaletteView.exitPhotoMode(true);
                 releaseSelStatus();
                 mMoveView.setBackgroundResource(R.drawable.btn_sel_bg);
                 if (mCurrDrawMode != DrawMode.MOVE) {
@@ -340,7 +351,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 break;
             case R.id.fab1://recording
                 mFloatingMenu.close(true);
-                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})) {
                     ToastUtils.showShort(R.string.need_storage_mission);
                     return;
                 }
@@ -360,7 +371,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 break;
             case R.id.fab4://share
                 mFloatingMenu.close(true);
-                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})){
+                if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})) {
                     ToastUtils.showShort(R.string.need_storage_mission);
                     return;
                 }
@@ -378,34 +389,16 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showColorChooseDialog();
                 break;
             case R.id.choose_photo:
-                mPaletteView.exitPhotoMode(true);
-                mLineType = LineType.PHOTO;
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (intent.resolveActivity(this.getPackageManager()) != null) {
-                        String path = this.getExternalCacheDir() + File.separator + "temp.png";
-                        FileUtils.createOrExistsFile(path);
-                        mTmpFile = new File(path);
-                    if (mTmpFile.exists()) {
-                        Uri uri = null;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            uri = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", mTmpFile);
-                        } else {
-                            uri = Uri.fromFile(mTmpFile);
-                        }
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                        startActivityForResult(intent, REQUEST_CAMERA);
-                    } else {
-                        ToastUtils.showShort("error");
-                    }
-                } else {
-                    ToastUtils.showShort("no camera");
+                int count = checkPicturesNum();
+                if (count > 10) {
+                    ToastUtils.showShort(R.string.over_img_limit);
+                    return;
                 }
+                pickPicture();
                 break;
         }
     }
 
-    private static final int REQUEST_CAMERA = 101;
-    private File mTmpFile;
     private void initMenu() {
         mFloatingMenu.setClosedOnTouchOutside(true);
         //mFloatingMenu.hideMenuButton(false);
@@ -479,32 +472,26 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         anchor.getLocationOnScreen(location);
         switch (type) {
             case 0:
-                /*mPaintPopupWindow.showAtLocation(anchor,
-                        Gravity.NO_GRAVITY, location[0] - mPaintPopupWindow.getWidth() / 2 + mPaintImageView.getWidth() / 2,
-                        location[1] - mPaintPopupWindow.getHeight() - mPaintImageView.getHeight() / 2);*/
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mPaintPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                    mPaintPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mPaintPopupWindow.showAtLocation(mStrokeView, Gravity.NO_GRAVITY,location[0], location[1]);
+                    mPaintPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)));
                 }
                 break;
             case 1:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mEraserPopupWindow.showAsDropDown(mEraserView, - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                    mEraserPopupWindow.showAsDropDown(mEraserView, -mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - mEraserPopupWindow.getHeight() - mEraserView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mEraserPopupWindow.showAtLocation(mEraserView, Gravity.NO_GRAVITY,location[0], location[1]);
+                    mEraserPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - mEraserPopupWindow.getHeight());
                 }
                 break;
             case 2:
-                //mColorPopupWindow.showAsDropDown(mStrokeView, -SizeUtils.dp2px(40), - SizeUtils.dp2px(5), Gravity.TOP);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mColorPopupWindow.showAsDropDown(mStrokeView, - mStrokeView.getLeft(), - Math.abs((int)getResources().getDimension(R.dimen.paint_popup_deliver)), Gravity.TOP);
+                    mColorPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mColorPopupWindow.showAtLocation(mStrokeView, Gravity.NO_GRAVITY,location[0], location[1]);
+                    mColorPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)));
                 }
                 break;
-
         }
     }
 
@@ -518,7 +505,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             return;
         }
         //画笔弹窗
-        View v = LayoutInflater.from(this).inflate(R.layout.paint_popup_layout, (ViewGroup)null);
+        View v = LayoutInflater.from(this).inflate(R.layout.paint_popup_layout, (ViewGroup) null);
         //画笔弹窗布局
         //画笔大小
         mPaintWidthCircle = v.findViewById(R.id.stroke_circle);
@@ -625,10 +612,10 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             public void onProgressChanged(SeekBar seekBar, int progress,
                                           boolean fromUser) {
                 ViewGroup.LayoutParams params = mPaintWidthCircle.getLayoutParams();
-                params.height = 6 + (int)((16.0f / 100.0f) * progress);
-                params.width = 6 + (int)((16.0f / 100.0f) * progress);
+                params.height = 6 + (int) ((16.0f / 100.0f) * progress);
+                params.width = 6 + (int) ((16.0f / 100.0f) * progress);
                 mPaintWidthCircle.requestLayout();
-                mStrokeWidth = 3 + (int)((16.0f / 100.0f) * progress);
+                mStrokeWidth = 3 + (int) ((16.0f / 100.0f) * progress);
             }
         });
         mPaintWidthSeekBar.setProgress(15);
@@ -701,16 +688,16 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         VectorDrawableCompat vectorDrawableCompat = null;
         switch (mStrokeLineType) {
             case DRAW:
-                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_pen,getTheme());
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_pen, getTheme());
                 break;
             case CIRCLE:
-                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_circle,getTheme());
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_circle, getTheme());
                 break;
             case LINE:
-                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_line,getTheme());
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_line, getTheme());
                 break;
             case RECTANGLE:
-                vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_rect,getTheme());
+                vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_rect, getTheme());
                 break;
         }
         if (vectorDrawableCompat != null) {
@@ -721,7 +708,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     }
 
     private void flushMoreIconColor() {
-        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_more,getTheme());
+        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_more, getTheme());
         vectorCompat.setTint(mPenColor);
         if (mMoreColorImg != null) {
             mMoreColorImg.setImageDrawable(vectorCompat);
@@ -729,7 +716,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     }
 
     private void flushBgIconColor() {
-        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(),R.drawable.ic_droplet,getTheme());
+        VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_droplet, getTheme());
         vectorCompat.setTint(mDefaultBgColor);
         if (mColorFloatingBtn != null) {
             mColorFloatingBtn.setImageDrawable(vectorCompat);
@@ -769,36 +756,53 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 }.execute();
                 break;
         }
-        
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RECORD_CODE && resultCode == RESULT_OK) {
-            boolean result = mHelper.record(resultCode, data);
-            mHelper.registerTimeCallback(new RecordService.TimeCallback() {
-                @Override
-                public void onTimeChange(String time) {
-                    if (!TextUtils.isEmpty(time)) {
-                        mRecordTimeTextView.setText(time);
-                    }
+        switch (requestCode) {
+            case RECORD_CODE:
+                if (resultCode != RESULT_OK) {
+                    return;
                 }
-            });
-            if (result) {
-                mRecordView.setVisibility(View.VISIBLE);
-            } else {
-                mRecordView.setVisibility(View.INVISIBLE);
-            }
-            mRecordTimeTextView.setText(R.string.record_time_def);
-        } else if (requestCode == REQUEST_CAMERA) {
-            if (resultCode == RESULT_OK && mTmpFile.exists()) {
-                mPaletteView.addPhotoByPath(mTmpFile.getAbsolutePath());
-            } else {
-                mLineType = mStrokeLineType;
-            }
+                boolean result = mHelper.record(resultCode, data);
+                mHelper.registerTimeCallback(new RecordService.TimeCallback() {
+                    @Override
+                    public void onTimeChange(String time) {
+                        if (!TextUtils.isEmpty(time)) {
+                            mRecordTimeTextView.setText(time);
+                        }
+                    }
+                });
+                if (result) {
+                    mRecordView.setVisibility(View.VISIBLE);
+                } else {
+                    mRecordView.setVisibility(View.INVISIBLE);
+                }
+                mRecordTimeTextView.setText(R.string.record_time_def);
+                break;
+            case REQUEST_CAMERA:
+                if (resultCode == RESULT_OK && mTmpFile.exists()) {
+                    mLineType = LineType.PHOTO;
+                    mPaletteView.addPhotoByPath(mTmpFile.getAbsolutePath());
+                }
+                break;
+            case REQUEST_PICTURE:
+                if (resultCode != RESULT_OK) {
+                    return;
+                }
+                Uri uri = data.getData();
+                String path = SmartFileUtils.getRealFileInfo(this, uri);
+                if (!TextUtils.isEmpty(path)) {
+                    mLineType = LineType.PHOTO;
+                    mCurrDrawMode = DrawMode.PHOTO;
+                    releaseStatus();
+                    mPaletteView.addPhotoByPath(path);
+                }
+                break;
         }
-
     }
 
     public Bitmap getScreenShotBitmap() {
@@ -829,7 +833,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 if (which == 0) {
                                     saveRecordImg(false);
-                                } else if(which == 1) {
+                                } else if (which == 1) {
                                     saveRecordImg(true);
                                 }
                                 return true;
@@ -864,6 +868,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     }
 
     private MaterialDialog mProgressDislog;
+
     private void showProgressDialog(@StringRes int stringId) {
         mProgressDislog = new MaterialDialog.Builder(this)
                 //.title(R.string.progress_dialog)
@@ -934,7 +939,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 if (which == 0) {
                                     shareRecordImg(false);
-                                } else if(which == 1) {
+                                } else if (which == 1) {
                                     shareRecordImg(true);
                                 }
                                 return true;
@@ -972,5 +977,22 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     @Override
     public void onPhotoTypeExited() {
         mLineType = mStrokeLineType;
+        mCurrDrawMode = DrawMode.NONE;
+    }
+
+
+    private void pickPicture() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_photo)), REQUEST_PICTURE);
+    }
+
+    private void releaseStatus() {
+        mStrokeView.setBackgroundColor(Color.TRANSPARENT);
+        mMoveView.setBackgroundColor(Color.TRANSPARENT);
+        mEraserView.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    private int checkPicturesNum() {
+        return mPaletteView.getPicturesCount();
     }
 }
