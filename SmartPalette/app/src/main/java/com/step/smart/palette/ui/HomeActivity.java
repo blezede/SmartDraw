@@ -1,9 +1,10 @@
 package com.step.smart.palette.ui;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,13 +13,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,12 +38,9 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
-import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -62,14 +58,10 @@ import com.step.smart.palette.utils.ShareUtils;
 import com.step.smart.palette.utils.SmartFileUtils;
 import com.step.smart.palette.widget.PaletteView;
 import com.step.smart.palette.widget.ShadowDrawable;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
 import java.io.File;
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import permissions.dispatcher.NeedsPermission;
@@ -79,7 +71,6 @@ import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.PermissionUtils;
 import permissions.dispatcher.RuntimePermissions;
-
 import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
 @RuntimePermissions
@@ -132,7 +123,10 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     private static final int REQUEST_CAMERA = 101;
     private static final int REQUEST_PICTURE = 102;
     private File mTmpFile;
-
+    private ImageView mPaintWidthCircle, mPaintAlphaCircle;
+    private SeekBar mPaintWidthSeekBar, mPaintAlphaSeekBar;
+    private RadioGroup mPaintColorRG;
+    private AppCompatImageView mMoreColorImg;
 
     @Override
     protected int getContentViewRes() {
@@ -153,7 +147,23 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         mHelper.bindService();
         EventBus.getDefault().register(this);
         HomeActivityPermissionsDispatcher.requestStoragePermissionsWithPermissionCheck(this);
+        registerReceiver(mBroadcastReceiver, generateIntentFilter());
     }
+
+    private IntentFilter generateIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        return filter;
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mHelper != null && mHelper.isRecording()) {
+                stopRecord();
+            }
+        }
+    };
 
     @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE})
     void requestStoragePermissions() {
@@ -311,9 +321,11 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showSaveDialog();
                 break;
             case R.id.undo://撤销
+                mPaletteView.exitPhotoMode(true, true);
                 mPaletteView.undo();
                 break;
             case R.id.redo://恢复
+                mPaletteView.exitPhotoMode(true, true);
                 mPaletteView.redo();
                 break;
             case R.id.stroke:
@@ -378,24 +390,38 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showShareDialog();
                 break;
             case R.id.record_status:
-                mRecordView.setVisibility(View.INVISIBLE);
-                boolean result = mHelper.stopRecord();
-                if (result) {
-                    ToastUtils.showShort(R.string.save_success);
-                }
-                mRecordTimeTextView.setText(R.string.record_time_def);
+                stopRecord();
                 break;
             case R.id.choose_bg_btn:
                 showColorChooseDialog();
                 break;
             case R.id.choose_photo:
                 int count = checkPicturesNum();
-                if (count > 10) {
+                if (count >= 10) {
                     ToastUtils.showShort(R.string.over_img_limit);
                     return;
                 }
                 pickPicture();
                 break;
+        }
+    }
+
+    private void stopRecord() {
+        if (mRecordView != null) {
+            mRecordView.setVisibility(View.INVISIBLE);
+        }
+        if (mHelper != null) {
+            boolean result = mHelper.stopRecord();
+            if (result) {
+                ToastUtils.showShort(R.string.save_success);
+                String videoPath = mHelper.getVideoPath();
+                if (!TextUtils.isEmpty(videoPath)) {
+                    ToastUtils.showLong(R.string.save_location, videoPath);
+                }
+            }
+        }
+        if (mRecordTimeTextView != null) {
+            mRecordTimeTextView.setText(R.string.record_time_def);
         }
     }
 
@@ -494,11 +520,6 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 break;
         }
     }
-
-    private ImageView mPaintWidthCircle, mPaintAlphaCircle;
-    private SeekBar mPaintWidthSeekBar, mPaintAlphaSeekBar;
-    private RadioGroup mPaintColorRG;
-    private AppCompatImageView mMoreColorImg;
 
     private void initPaintPop() {
         if (mPaintPopupWindow != null) {
@@ -733,6 +754,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         mHelper.unbindService();
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        unregisterReceiver(mBroadcastReceiver);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -909,6 +931,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                     return;
                 } else {
                     ToastUtils.showShort(R.string.save_success);
+                    ToastUtils.showLong(R.string.save_location, aVoid);
                 }
             }
         }.execute();
@@ -968,18 +991,24 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                     ToastUtils.showShort(R.string.generate_failed);
                     return;
                 } else {
-                    ShareUtils.shareFile(getApplicationContext(), aVoid);
+                    ShareUtils.shareFile(HomeActivity.this, aVoid);
                 }
             }
         }.execute();
     }
 
     @Override
-    public void onPhotoTypeExited() {
+    public void onPhotoTypeExited(boolean byUser) {
         mLineType = mStrokeLineType;
         mCurrDrawMode = DrawMode.NONE;
-    }
+        if (byUser) {
+            mCurrDrawMode = DrawMode.EDIT;
+            releaseSelStatus();
+            flushStrokeColor();
+            mStrokeView.setBackgroundResource(R.drawable.btn_sel_bg);
+        }
 
+    }
 
     private void pickPicture() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -993,6 +1022,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     }
 
     private int checkPicturesNum() {
+        if (mPaletteView == null) {
+            return 0;
+        }
         return mPaletteView.getPicturesCount();
     }
 }

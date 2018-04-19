@@ -186,7 +186,16 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
     public void redo() {
         int size = mPaletteData.undoList.size();
         if (size > 0) {
+            int picturesCount = getPicturesCount();
             PathEntity entity = mPaletteData.undoList.remove(size - 1);
+            if (picturesCount >= 10 && entity.type == LineType.PHOTO) {
+                if (entity.bitmap != null) {
+                    entity.bitmap.recycle();
+                    entity.bitmap = null;
+                }
+                redo();
+                return;
+            }
             mPaletteData.pathList.add(entity);
             reFlush();
         }
@@ -199,9 +208,9 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
     }
 
     @Override
-    public void onPhotoTypeExited() {
+    public void onPhotoTypeExited(boolean byUser) {
         if (mPaletteInterface != null)
-            mPaletteInterface.onPhotoTypeExited();
+            mPaletteInterface.onPhotoTypeExited(byUser);
     }
 
     @Override
@@ -222,12 +231,7 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
         int count = 0;
         for (PathEntity p : mPaletteData.pathList) {
             if (p.type == LineType.PHOTO) {
-                count ++;
-            }
-        }
-        for (PathEntity p : mPaletteData.undoList) {
-            if (p.type == LineType.PHOTO) {
-                count ++;
+                count++;
             }
         }
         return count;

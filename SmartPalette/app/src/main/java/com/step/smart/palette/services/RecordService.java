@@ -45,6 +45,7 @@ public class RecordService extends Service {
     private TimeCallback timeCallback;
 
     private long startTime, endTime;
+    private String videoPath;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -192,6 +193,7 @@ public class RecordService extends Service {
         mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
         mediaRecorder.setVideoFrameRate(30);
         mediaRecorder.prepare();
+        videoPath = filePath;
     }
 
     public String getSaveDirectory() {
@@ -235,6 +237,10 @@ public class RecordService extends Service {
         public RecordService getRecordService() {
             return RecordService.this;
         }
+    }
+
+    public String getVideoPath() {
+        return this.videoPath;
     }
 
     public static class Helper {
@@ -327,6 +333,13 @@ public class RecordService extends Service {
                 return recordService.isRunning();
             }
             return false;
+        }
+
+        public String getVideoPath() {
+            if (recordService != null) {
+                return recordService.getVideoPath();
+            }
+            return "";
         }
 
     }

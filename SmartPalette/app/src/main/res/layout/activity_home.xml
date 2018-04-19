@@ -140,7 +140,6 @@
                 android:id="@+id/choose_photo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:src="@drawable/ic_add_pic2"
                 fab:fab_colorNormal="#FAFAFA"
                 fab:fab_colorPressed="#a7a5a5"

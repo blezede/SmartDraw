@@ -1,5 +1,6 @@
 package com.step.smart.palette.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +19,7 @@ import java.io.File;
 
 public class ShareUtils {
 
-    public static void shareFile(Context c, String filePath) {
+    public static void shareFile(Activity c, String filePath) {
         if (c == null) {
             return;
         }

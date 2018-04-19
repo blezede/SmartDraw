@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
@@ -60,7 +61,7 @@ public class PaletteStrokeView extends View {
     private BlurMaskFilter mDefaultBlur = new BlurMaskFilter(0.8F, BlurMaskFilter.Blur.SOLID);
     private BlurMaskFilter mHighLightBlur = new BlurMaskFilter(10F, BlurMaskFilter.Blur.OUTER);
 
-    public Bitmap mirrorMarkBM = BitmapFactory.decodeResource(getResources(), R.drawable.mark_copy);
+    public Bitmap mirrorMarkBM = BitmapFactory.decodeResource(getResources(), R.drawable.mark_confirm);
     public Bitmap deleteMarkBM = BitmapFactory.decodeResource(getResources(), R.drawable.mark_delete);
     public Bitmap rotateMarkBM = BitmapFactory.decodeResource(getResources(), R.drawable.mark_rotate);
     public Bitmap resetMarkBM = BitmapFactory.decodeResource(getResources(), R.drawable.mark_reset);
@@ -248,12 +249,16 @@ public class PaletteStrokeView extends View {
     }
 
     public void exitPhotoMode(boolean flush) {
+        exitPhotoMode(flush, false);
+    }
+
+    public void exitPhotoMode(boolean flush, boolean byUser) {
         if (mCurrPathEntity == null || mCurrPathEntity.type != LineType.PHOTO) {
             return;
         }
         actionMode = ACTION_NONE;
         if (mSyncDrawInterface != null) {
-            mSyncDrawInterface.onPhotoTypeExited();
+            mSyncDrawInterface.onPhotoTypeExited(byUser);
             mSyncDrawInterface.syncPhotoRecord(mCurrPathEntity);
         }
         mCurrPathEntity = null;
@@ -397,13 +402,13 @@ public class PaletteStrokeView extends View {
 
         void syncEraserPoint(MotionEvent event, PathEntity entity);
 
-        void onPhotoTypeExited();
+        void onPhotoTypeExited(boolean byUser);
 
         void syncPhotoRecord(PathEntity entity);
     }
 
     //--------------------------photo------------------------
-    public void addPhotoByBitmap(Bitmap sampleBM) {
+    private void addPhotoByBitmap(Bitmap sampleBM) {
         if (sampleBM != null) {
             mCurrPathEntity = initPhotoRecord(sampleBM);
             invalidate();
@@ -425,14 +430,15 @@ public class PaletteStrokeView extends View {
             scale = 0.5f;
             entity.matrix.postScale(scale, scale);
         }
-        if (getParent() != null && getParent().getParent() != null) {
-            PaletteView parent = (PaletteView) (getParent().getParent());
-            int x = Math.abs(parent.mFrameManager.windowLeft) + parent.mFrameManager.frameWidth / 2 - (int)(bitmap.getWidth() * scale) / 2 ;
-            int y = Math.abs(parent.mFrameManager.windowTop) + parent.mFrameManager.frameHeight / 2 - (int)(bitmap.getHeight() * scale) / 2;
+        if (getParent() != null && getParent() != null) {
+            FrameLayout parent = (FrameLayout) (getParent());
+            int x = Math.abs((int)parent.getX()) + ScreenUtils.getScreenWidth() / 2 - (int)(bitmap.getWidth() * scale) / 2;
+            int y = Math.abs((int)parent.getY()) + ScreenUtils.getScreenHeight() / 2 - (int)(bitmap.getHeight() * scale) / 2;
             entity.matrix.postTranslate(x, y);
         } else {
             entity.matrix.postTranslate(getWidth() / 2 - bitmap.getWidth() / 2, getHeight() / 2 - bitmap.getHeight() / 2);
         }
+        entity.srcMatrix = new Matrix(entity.matrix);
         return entity;
     }
 
@@ -472,10 +478,10 @@ public class PaletteStrokeView extends View {
     public void drawMarks(Canvas canvas, float[] photoCorners) {
         float x;
         float y;
-        //x = photoCorners[0] - markerCopyRect.width() / 2;
-        //y = photoCorners[1] - markerCopyRect.height() / 2;
-        //markerCopyRect.offsetTo(x, y);
-        //canvas.drawBitmap(mirrorMarkBM, x, y, null);
+        x = photoCorners[0] - markerCopyRect.width() / 2;
+        y = photoCorners[1] - markerCopyRect.height() / 2;
+        markerCopyRect.offsetTo(x, y);
+        canvas.drawBitmap(mirrorMarkBM, x, y, null);
 
         x = photoCorners[2] - markerDeleteRect.width() / 2;
         y = photoCorners[3] - markerDeleteRect.height() / 2;
@@ -505,23 +511,20 @@ public class PaletteStrokeView extends View {
             }
             mCurrPathEntity = null;
             if (mSyncDrawInterface != null) {
-                mSyncDrawInterface.onPhotoTypeExited();
+                mSyncDrawInterface.onPhotoTypeExited(true);
             }
             actionMode = ACTION_NONE;
             return true;
         }
-        /*if (markerCopyRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
-            PathEntity newRecord = initPhotoRecord(mCurrPathEntity.bitmap);
-            newRecord.matrix = new Matrix(mCurrPathEntity.matrix);
-            newRecord.matrix.postTranslate(SizeUtils.dp2px(20f), SizeUtils.dp2px(20));//偏移小段距离以分辨新复制的图片
-            mCurrPathEntity = newRecord;
-            actionMode = ACTION_NONE;
+        if (markerCopyRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
+            exitPhotoMode(false, true);//外部已经刷新过
             return true;
-        }*/
+        }
         if (markerResetRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
             mCurrPathEntity.matrix.reset();
-            mCurrPathEntity.matrix.setTranslate(getWidth() / 2 - mCurrPathEntity.photoRectSrc.width() / 2,
-                    getHeight() / 2 - mCurrPathEntity.photoRectSrc.height() / 2);
+            mCurrPathEntity.matrix.set(mCurrPathEntity.srcMatrix);
+           /* mCurrPathEntity.matrix.setTranslate(getWidth() / 2 - mCurrPathEntity.photoRectSrc.width() / 2,
+                    getHeight() / 2 - mCurrPathEntity.photoRectSrc.height() / 2);*/
             actionMode = ACTION_NONE;
             return true;
         }
@@ -627,7 +630,11 @@ public class PaletteStrokeView extends View {
 
     public void addPhotoByPath(String path) {
         if (mCurrPathEntity != null && mCurrPathEntity.type == LineType.PHOTO) {
-            exitPhotoMode(true);
+            if (mSyncDrawInterface != null) {
+                mSyncDrawInterface.syncPhotoRecord(mCurrPathEntity);
+            }
+            mCurrPathEntity = null;
+            invalidate();
         }
         Bitmap sampleBM = getSampleBitMap(path);
         addPhotoByBitmap(sampleBM);

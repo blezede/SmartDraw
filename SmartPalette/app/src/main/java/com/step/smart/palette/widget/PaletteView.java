@@ -303,7 +303,7 @@ public class PaletteView extends FrameLayout {
 
         boolean isHighLighter();
 
-        void onPhotoTypeExited();
+        void onPhotoTypeExited(boolean byUser);
     }
 
     public void addPhotoByPath(String path) {
@@ -312,5 +312,9 @@ public class PaletteView extends FrameLayout {
 
     public void exitPhotoMode(boolean flush) {
         mPaletteStrokeView.exitPhotoMode(flush);
+    }
+
+    public void exitPhotoMode(boolean flush, boolean byUser) {
+        mPaletteStrokeView.exitPhotoMode(flush, byUser);
     }
 }

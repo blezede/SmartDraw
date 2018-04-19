@@ -32,6 +32,7 @@ public class PathEntity {
 
     public Bitmap bitmap;//图形
     public Matrix matrix;//图形
+    public Matrix srcMatrix;
     public RectF photoRectSrc = new RectF();
     public float scaleMax = 3;
 
