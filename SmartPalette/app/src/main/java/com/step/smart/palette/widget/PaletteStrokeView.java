@@ -36,7 +36,9 @@ import com.step.smart.palette.utils.BitmapUtils;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by weflow on 2018/4/3.
@@ -160,6 +162,7 @@ public class PaletteStrokeView extends View {
     private float mDownX;
     private float mDownY;
     private PathEntity mCurrPathEntity;
+    private Set<Integer> mPointerIds = new HashSet<>();
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
