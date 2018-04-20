@@ -321,11 +321,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 showSaveDialog();
                 break;
             case R.id.undo://撤销
-                mPaletteView.exitPhotoMode(true, true);
                 mPaletteView.undo();
                 break;
             case R.id.redo://恢复
-                mPaletteView.exitPhotoMode(true, true);
                 mPaletteView.redo();
                 break;
             case R.id.stroke:
