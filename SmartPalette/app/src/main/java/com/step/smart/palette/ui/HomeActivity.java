@@ -309,7 +309,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.save:
-                mPaletteView.exitPhotoMode(true);
+                mPaletteView.exitPhotoMode(true, true);
                 if (!PermissionUtils.hasSelfPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})) {
                     ToastUtils.showShort(R.string.need_storage_mission);
                     return;
