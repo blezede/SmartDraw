@@ -97,7 +97,7 @@ public class PreViewActivity extends BaseActivity {
             case MessageEvent.PREVIEW_BITMAP_RESULT:
                 Bitmap bitmap = (Bitmap) event.obj;
                 if (bitmap == null) {
-                    ToastUtils.showShort("生成失败");
+                    ToastUtils.showShort(R.string.generate_failed);
                     finish();
                 } else {
                     mAVLoadingIndicatorView.hide();

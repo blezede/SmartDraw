@@ -39,7 +39,7 @@
     <string name="save_success">保存成功</string>
     <string name="save_failed">保存失败</string>
 
-    <string name="storage_accress">该应用在使用过程中需要访问SD卡进行数据保存,您是否同意?</string>
+    <string name="storage_access">该应用在使用过程中需要访问SD卡进行数据保存,您是否同意?</string>
     <string name="agree">同意</string>
     <string name="disagree">不同意</string>
 
