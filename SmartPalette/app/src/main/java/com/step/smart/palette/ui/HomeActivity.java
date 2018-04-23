@@ -119,7 +119,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     private LineType mStrokeLineType = LineType.DRAW;
     private PopupWindow mPaintPopupWindow, mEraserPopupWindow, mColorPopupWindow;
     private RecordService.Helper mHelper;
-    private int mDefaultBgColor = Color.parseColor("#78909C");
+    private int mDefaultBgColor = Color.parseColor("#FAFAFA");
     private static final int REQUEST_CAMERA = 101;
     private static final int REQUEST_PICTURE = 102;
     private File mTmpFile;
@@ -220,7 +220,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             public void onGlobalLayout() {
                 mLinearLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 mLinearLayout.setBackground(new ShadowDrawable(mLinearLayout,
-                        getResources().getColor(R.color.color_tools_bg)));
+                        /*getResources().getColor(R.color.color_tools_bg)*/Color.WHITE));
             }
         });
 
@@ -736,7 +736,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
     private void flushBgIconColor() {
         VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_droplet, getTheme());
-        vectorCompat.setTint(mDefaultBgColor);
+        vectorCompat.setTint(Color.parseColor("#1781d2"));
         if (mColorFloatingBtn != null) {
             mColorFloatingBtn.setImageDrawable(vectorCompat);
         }
@@ -879,7 +879,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
         mPaletteView.setBackgroundColor(selectedColor);
         mDefaultBgColor = selectedColor;
-        flushBgIconColor();
+        //flushBgIconColor();
     }
 
     @Override
