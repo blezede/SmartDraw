@@ -33,11 +33,6 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void _init() {
-        if (Preferences.getInt(PreferenceConstant.SCREEN_ORIENTATION, PreferenceConstant.SCREEN_PORT) == PreferenceConstant.SCREEN_PORT) {
-            ScreenUtils.setPortrait(this);
-        } else {
-            ScreenUtils.setLandscape(this);
-        }
         initViews();
     }
 

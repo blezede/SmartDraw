@@ -1,5 +1,6 @@
 package com.step.smart.palette.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -433,14 +435,17 @@ public class PaletteStrokeView extends View {
             scale = 0.5f;
             entity.matrix.postScale(scale, scale);
         }
+        int translateX;
+        int translateY;
         if (getParent() != null && getParent() != null) {
             FrameLayout parent = (FrameLayout) (getParent());
-            int x = Math.abs((int)parent.getX()) + ScreenUtils.getScreenWidth() / 2 - (int)(bitmap.getWidth() * scale) / 2;
-            int y = Math.abs((int)parent.getY()) + ScreenUtils.getScreenHeight() / 2 - (int)(bitmap.getHeight() * scale) / 2;
-            entity.matrix.postTranslate(x, y);
+            translateX = Math.abs((int)parent.getX()) + ScreenUtils.getScreenWidth() / 2 - (int)(bitmap.getWidth() * scale) / 2;
+            translateY = Math.abs((int)parent.getY()) + ScreenUtils.getScreenHeight() / 2 - (int)(bitmap.getHeight() * scale) / 2;
         } else {
-            entity.matrix.postTranslate(getWidth() / 2 - bitmap.getWidth() / 2, getHeight() / 2 - bitmap.getHeight() / 2);
+            translateX = getWidth() / 2 - bitmap.getWidth() / 2;
+            translateY = getHeight() / 2 - bitmap.getHeight() / 2;
         }
+        entity.matrix.postTranslate(translateX, translateY);
         entity.srcMatrix = new Matrix(entity.matrix);
         return entity;
     }
@@ -631,7 +636,8 @@ public class PaletteStrokeView extends View {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    public void addPhotoByPath(String path) {
+    @SuppressLint("StaticFieldLeak")
+    public void addPhotoByPath(final String path) {
         if (mCurrPathEntity != null && mCurrPathEntity.type == LineType.PHOTO) {
             if (mSyncDrawInterface != null) {
                 mSyncDrawInterface.syncPhotoRecord(mCurrPathEntity);
@@ -639,8 +645,23 @@ public class PaletteStrokeView extends View {
             mCurrPathEntity = null;
             invalidate();
         }
-        Bitmap sampleBM = getSampleBitMap(path);
-        addPhotoByBitmap(sampleBM);
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... voids) {
+                int degree = BitmapUtils.readPictureDegree(path);
+                Bitmap bitmap = getSampleBitMap(path);
+                if (degree > 0) {
+                    return BitmapUtils.rotateToDegrees(bitmap, degree);
+                } else {
+                    return bitmap;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                addPhotoByBitmap(bitmap);
+            }
+        }.execute();
     }
 
     private Bitmap getSampleBitMap(String path) {

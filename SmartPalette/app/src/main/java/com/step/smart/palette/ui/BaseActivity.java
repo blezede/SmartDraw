@@ -39,7 +39,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         _init();
     }
 
-    protected abstract @LayoutRes int getContentViewRes();
+    protected abstract @LayoutRes
+    int getContentViewRes();
 
     protected abstract void _init();
 

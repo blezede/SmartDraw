@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Environment;
 import android.view.WindowManager;
 
@@ -112,17 +113,18 @@ public class BitmapUtils {
         return bm;
     }
 
-    public static Bitmap getBitmapFromAssets(Context context, String path){
+    public static Bitmap getBitmapFromAssets(Context context, String path) {
         InputStream open = null;
         Bitmap bitmap = null;
         try {
-            String temp =  path;
+            String temp = path;
             open = context.getAssets().open(temp);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options = sampleBitmapOptions(context, options, 10, 10);
             bitmap = BitmapFactory.decodeStream(open, null, options);
             return bitmap;
-        } catch (Exception e) {e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -170,7 +172,7 @@ public class BitmapUtils {
     }
 
     public static boolean isLandScreen(Context context) {
-        int ori =context.getResources().getConfiguration().orientation;//获取屏幕方向
+        int ori = context.getResources().getConfiguration().orientation;//获取屏幕方向
         return ori == Configuration.ORIENTATION_LANDSCAPE;
     }
 
@@ -196,5 +198,56 @@ public class BitmapUtils {
         if (needRecycle)
             bitMap.recycle();
         return newBitMap;
+    }
+
+    /**
+     * 读取照片exif信息中的旋转角度
+     *
+     * @param path 照片路径
+     * @return角度
+     */
+    public static int readPictureDegree(String path) {
+        int degree = 0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            int orientation =
+                    exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_UNDEFINED);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+                default:
+                    degree = 0;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    /**
+     * 图片旋转
+     *
+     * @param tmpBitmap
+     * @param degrees
+     * @return
+     */
+    public static Bitmap rotateToDegrees(Bitmap tmpBitmap, float degrees) {
+        if (tmpBitmap == null) {
+            return null;
+        }
+        Matrix matrix = new Matrix();
+        matrix.reset();
+        matrix.setRotate(degrees);
+        return Bitmap.createBitmap(tmpBitmap, 0, 0, tmpBitmap.getWidth(), tmpBitmap.getHeight(), matrix,
+                        true);
     }
 }

@@ -29,6 +29,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -110,6 +111,8 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     FloatingActionButton mColorFloatingBtn;
     @BindView(R.id.container)
     View mContainerView;
+    @BindView(R.id.tool_lt)
+    LinearLayout mLeftToolsView;
 
     private int mPenColor = Color.BLACK;
     private float mStrokeWidth = 5f;
@@ -438,6 +441,21 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             mRecordFloatingBtn.hideButtonInMenu(false);
         }
         flushBgIconColor();
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mLeftToolsView.getLayoutParams();
+        layoutParams.setMargins(SizeUtils.dp2px(10f), getStatusBarHeight(), 0, 0);
+        mLeftToolsView.setLayoutParams(layoutParams);
+    }
+
+    private int getStatusBarHeight() {
+        int height = 0;
+        Resources resources = this.getResources();
+        int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId != 0) {
+            height = resources.getDimensionPixelSize(resourceId);
+        } else {
+            height = SizeUtils.dp2px(24f);
+        }
+        return height;
     }
 
     @Override
