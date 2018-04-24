@@ -1,6 +1,7 @@
 package com.step.smart.palette.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -440,7 +441,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         } else {
             mRecordFloatingBtn.hideButtonInMenu(false);
         }
-        flushBgIconColor();
+        //flushBgIconColor();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mLeftToolsView.getLayoutParams();
         layoutParams.setMargins(SizeUtils.dp2px(10f), getStatusBarHeight(), 0, 0);
         mLeftToolsView.setLayoutParams(layoutParams);
@@ -490,7 +491,6 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
     @Override
     public void onUndoRedoCountChanged(int redo, int undo) {
-        Log.e("Home", "onUndoRedoCountChanged --> redo = " + redo + ", undo = " + undo);
         if (redo > 0) {
             mRedoImageView.setImageResource(R.drawable.redo);
         } else {
@@ -683,7 +683,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             return;
         }
         //橡皮擦
-        View v = LayoutInflater.from(this).inflate(R.layout.popup_eraser, null);
+        View v = LayoutInflater.from(this).inflate(R.layout.popup_eraser, (ViewGroup) null);
         View eraser = v.findViewById(R.id.rl_eraser);
         View clean = v.findViewById(R.id.rl_clean);
         eraser.setOnClickListener(mOnClickListener);
@@ -746,6 +746,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
     private void flushMoreIconColor() {
         VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_more, getTheme());
+        if (vectorCompat == null) {
+            return;
+        }
         vectorCompat.setTint(mPenColor);
         if (mMoreColorImg != null) {
             mMoreColorImg.setImageDrawable(vectorCompat);
@@ -754,6 +757,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
     private void flushBgIconColor() {
         VectorDrawableCompat vectorCompat = VectorDrawableCompat.create(getResources(), R.drawable.ic_droplet, getTheme());
+        if (vectorCompat == null) {
+            return;
+        }
         vectorCompat.setTint(Color.parseColor("#1781d2"));
         if (mColorFloatingBtn != null) {
             mColorFloatingBtn.setImageDrawable(vectorCompat);
@@ -773,6 +779,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         unregisterReceiver(mBroadcastReceiver);
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.what) {
@@ -923,10 +930,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         }
     }
 
-    private boolean isProgressDialogShowing() {
-        return mProgressDislog != null ? mProgressDislog.isShowing() : false;
-    }
-
+    @SuppressLint("StaticFieldLeak")
     private void saveRecordImg(final boolean wholeCanvas) {
         showProgressDialog(R.string.saving);
         new AsyncTask<Void, Void, String>() {
@@ -944,7 +948,6 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 dismissProgressDialog();
                 if (TextUtils.isEmpty(aVoid)) {
                     ToastUtils.showShort(R.string.save_failed);
-                    return;
                 } else {
                     ToastUtils.showShort(R.string.save_success);
                     ToastUtils.showLong(R.string.save_location, aVoid);
@@ -988,6 +991,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 .show();
     }
 
+    @SuppressLint("StaticFieldLeak")
     private void shareRecordImg(final boolean wholeCanvas) {
         showProgressDialog(R.string.generating);
         new AsyncTask<Void, Void, String>() {
@@ -1005,7 +1009,6 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
                 dismissProgressDialog();
                 if (TextUtils.isEmpty(aVoid)) {
                     ToastUtils.showShort(R.string.generate_failed);
-                    return;
                 } else {
                     ShareUtils.shareFile(HomeActivity.this, aVoid);
                 }

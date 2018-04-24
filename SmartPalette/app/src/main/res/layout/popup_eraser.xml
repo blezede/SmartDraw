@@ -16,7 +16,7 @@
             android:layout_width="@dimen/eraser_item_w"
             android:layout_height="@dimen/eraser_item_h"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/eraser2" />
+            android:src="@drawable/eraser" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
             android:layout_centerHorizontal="true"
             android:text="@string/eraser_era"
             android:maxLines="1"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/darker_gray"
             android:textSize="@dimen/eraser_text_size" />
     </RelativeLayout>
 
@@ -52,7 +52,7 @@
             android:layout_centerHorizontal="true"
             android:text="@string/eraser_clear"
             android:maxLines="1"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/darker_gray"
             android:textSize="@dimen/eraser_text_size" />
     </RelativeLayout>
 </RelativeLayout>

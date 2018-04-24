@@ -1,12 +1,17 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 
+def getDate() {
+    return new SimpleDateFormat("yyyyMMdd").format(new Date())
+}
 android {
     compileSdkVersion 27
     defaultConfig {
         applicationId 'com.step.smart.palette'
-        minSdkVersion 18
+        minSdkVersion 14
         targetSdkVersion 27
-        versionCode 1
+        versionCode Integer.valueOf(getDate())
         versionName "1.0.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -25,7 +30,7 @@ android {
             if (productFlavors.size() > 0) {
                 appId = productFlavors[0].applicationId
             }
-            outputFileName = "${appId}-${defaultConfig.versionName}.apk"
+            outputFileName = "${appId}-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
         }
     }
 }

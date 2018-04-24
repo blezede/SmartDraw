@@ -131,7 +131,7 @@
                 android:id="@+id/choose_bg_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_droplet"
+                android:src="@drawable/ic_droplet1"
                 fab:fab_colorNormal="#FAFAFA"
                 fab:fab_colorPressed="#a7a5a5"
                 fab:fab_colorRipple="#c7c1c1"
