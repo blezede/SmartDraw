@@ -2,14 +2,15 @@ import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
 
-def getDate() {
+def static getDate() {
     return new SimpleDateFormat("yyyyMMdd").format(new Date())
 }
+
 android {
     compileSdkVersion 27
     defaultConfig {
         applicationId 'com.step.smart.palette'
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 27
         versionCode Integer.valueOf(getDate())
         versionName "1.0.0.0"
