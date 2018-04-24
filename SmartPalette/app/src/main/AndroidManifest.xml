@@ -21,7 +21,7 @@
         android:theme="@style/AppTheme.NoActionBar">
 
         <meta-data android:value="5acf1d0da40fa33d7f000108" android:name="UMENG_APPKEY"/>
-        <meta-data android:value="Umeng" android:name="UMENG_CHANNEL"/>
+        <meta-data android:value="${UMENG_CHANNEL_VALUE}" android:name="UMENG_CHANNEL"/>
 
         <activity android:name=".ui.HomeActivity"
             android:screenOrientation="sensor">

@@ -16,22 +16,74 @@ android {
         versionName "1.0.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "Umeng"]
     }
     buildTypes {
         release {
+            shrinkResources true //移除无用资源文件
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "default"
+
     productFlavors {
+        Tencent {
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Tencent]
+        }
+        Baidu {//投放百度市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Baidu]
+        }
+        Wandoujia {//投放豌豆荚市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Wandoujia]
+        }
+        PP {//投放PP助手市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: PP]
+        }
+        Qihoo {
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Qihoo]
+        }
+        Vivo {//投放vivo市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Vivo]
+        }
+        Oppo {//投放oppo市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Oppo]
+        }
+        Xiaomi {//投放小米市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Xiaomi]
+        }
+        Meizu {//投放魅族市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Meizu]
+        }
+        Huawei {//投放华为应用市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Huawei]
+        }
+        Lenovo {//投放联想市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Lenovo]
+        }
+        Letv {//投放乐视市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Letv]
+        }
+        Gionee {//投放金立市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: Gionee]
+        }
+        HiMarket {//投放安卓市场
+            //     manifestPlaceholders = [UMENG_CHANNEL_VALUE: HiMarket]
+        }
     }
+
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+    }
+
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             def appId = defaultConfig.applicationId
-            if (productFlavors.size() > 0) {
-                appId = productFlavors[0].applicationId
-            }
-            outputFileName = "${appId}-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+            //if (productFlavors.size() > 0) {
+            //    appId = productFlavors[0].applicationId
+            //}
+            outputFileName = "${appId}-${defaultConfig.versionName}-${defaultConfig.versionCode}-${variant.productFlavors[0].name}.apk"
         }
     }
 }
