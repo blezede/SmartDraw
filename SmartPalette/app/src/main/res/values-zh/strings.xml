@@ -61,4 +61,6 @@
     <string name="choose_photo">选择图片</string>
     <string name="over_img_limit">已达到图片加载上限</string>
     <string name="save_location">文件保存在:%s</string>
+
+    <string name="show_screen_set_again">应用启动时,显示屏幕设置页面</string>
 </resources>

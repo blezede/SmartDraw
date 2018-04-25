@@ -40,6 +40,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
@@ -60,10 +61,13 @@ import com.step.smart.palette.utils.ShareUtils;
 import com.step.smart.palette.utils.SmartFileUtils;
 import com.step.smart.palette.widget.PaletteView;
 import com.step.smart.palette.widget.ShadowDrawable;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import permissions.dispatcher.NeedsPermission;
@@ -73,6 +77,7 @@ import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.PermissionUtils;
 import permissions.dispatcher.RuntimePermissions;
+
 import static com.step.smart.palette.services.RecordService.Helper.RECORD_CODE;
 
 @RuntimePermissions
@@ -298,12 +303,11 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             }
         });
 
-        //橡皮擦弹窗
         mColorPopupWindow = new PopupWindow(this);
         mColorPopupWindow.setContentView(v);//设置主体布局
-        mColorPopupWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.paint_popup_width));//宽度
+        mColorPopupWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.dimen_230dp));//宽度
         //mPaintPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);//高度自适应
-        mColorPopupWindow.setHeight(getResources().getDimensionPixelSize(R.dimen.paint_popup_height));//高度
+        mColorPopupWindow.setHeight(getResources().getDimensionPixelSize(R.dimen.dimen_230dp));//高度
         mColorPopupWindow.setFocusable(true);
         mColorPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
         //mColorPopupWindow.setAnimationStyle(R.style.popwindow_anim_style);//动画
@@ -442,9 +446,12 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
             mRecordFloatingBtn.hideButtonInMenu(false);
         }
         //flushBgIconColor();
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mLeftToolsView.getLayoutParams();
-        layoutParams.setMargins(SizeUtils.dp2px(10f), getStatusBarHeight(), 0, 0);
-        mLeftToolsView.setLayoutParams(layoutParams);
+        Resources res = getResources();
+        if (res != null) {
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mLeftToolsView.getLayoutParams();
+            layoutParams.setMargins((int) res.getDimension(R.dimen.dimen_10dp), getStatusBarHeight(), 0, 0);
+            mLeftToolsView.setLayoutParams(layoutParams);
+        }
     }
 
     private int getStatusBarHeight() {
@@ -454,7 +461,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         if (resourceId != 0) {
             height = resources.getDimensionPixelSize(resourceId);
         } else {
-            height = SizeUtils.dp2px(24f);
+            height = (int) resources.getDimension(R.dimen.dimen_24dp);
         }
         return height;
     }
@@ -515,23 +522,23 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         switch (type) {
             case 0:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mPaintPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
+                    mPaintPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - Math.abs((int) getResources().getDimension(R.dimen.dimen_230dp)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mPaintPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)));
+                    mPaintPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - Math.abs((int) getResources().getDimension(R.dimen.dimen_230dp)));
                 }
                 break;
             case 1:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mEraserPopupWindow.showAsDropDown(mEraserView, -mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - mEraserPopupWindow.getHeight() - mEraserView.getHeight(), Gravity.NO_GRAVITY);
+                    mEraserPopupWindow.showAsDropDown(mEraserView, -mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, -Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - mEraserPopupWindow.getHeight() - mEraserView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mEraserPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - mEraserPopupWindow.getHeight());
+                    mEraserPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mEraserPopupWindow.getWidth() / 2 + mEraserView.getWidth() / 2, location[1] - Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - mEraserPopupWindow.getHeight());
                 }
                 break;
             case 2:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mColorPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
+                    mColorPopupWindow.showAsDropDown(mStrokeView, -mStrokeView.getLeft(), -Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - Math.abs((int) getResources().getDimension(R.dimen.dimen_230dp)) - mStrokeView.getHeight(), Gravity.NO_GRAVITY);
                 } else {
-                    mColorPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_deliver)) - Math.abs((int) getResources().getDimension(R.dimen.paint_popup_height)));
+                    mColorPopupWindow.showAtLocation(mContainerView, Gravity.NO_GRAVITY, location[0] - mStrokeView.getLeft(), location[1] - Math.abs((int) getResources().getDimension(R.dimen.dimen_10dp)) - Math.abs((int) getResources().getDimension(R.dimen.dimen_230dp)));
                 }
                 break;
         }
@@ -563,7 +570,7 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
 
         //定义底部标签图片大小
         Resources res = getResources();
-        int size = (int) res.getDimension(R.dimen.paint_col_img_size);
+        int size = (int) res.getDimension(R.dimen.dimen_25dp);
         Drawable drawableDraw = res.getDrawable(R.drawable.stroke_type_rbtn_draw);
         drawableDraw.setBounds(0, 0, size, size);//第一0是距左右边距离，第二0是距上下边距离，第三69长度,第四宽度
         strokeDraw.setCompoundDrawables(drawableDraw, null, null, null);//只放上面
@@ -582,9 +589,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
         mPaintPopupWindow = new PopupWindow(this);
         mPaintPopupWindow.setContentView(v);//设置主体布局
         mPaintPopupWindow.getContentView().measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        mPaintPopupWindow.setWidth(res.getDimensionPixelSize(R.dimen.paint_popup_width));//宽度
+        mPaintPopupWindow.setWidth(res.getDimensionPixelSize(R.dimen.dimen_230dp));//宽度
         //mPaintPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);//高度自适应
-        mPaintPopupWindow.setHeight(res.getDimensionPixelSize(R.dimen.paint_popup_height));//高度
+        mPaintPopupWindow.setHeight(res.getDimensionPixelSize(R.dimen.dimen_230dp));//高度
         mPaintPopupWindow.setFocusable(true);
         mPaintPopupWindow.setBackgroundDrawable(new BitmapDrawable());//设置空白背景
         mPaintPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {

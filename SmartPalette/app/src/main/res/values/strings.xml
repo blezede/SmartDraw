@@ -61,4 +61,6 @@
     <string name="choose_photo">Choose a picture</string>
     <string name="over_img_limit">You have inserted too many pictures</string>
     <string name="save_location">The File Saved Path:%s</string>
+
+    <string name="show_screen_set_again">Display screen settings page when the application starts</string>
 </resources>

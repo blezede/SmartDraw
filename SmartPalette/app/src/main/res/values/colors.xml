@@ -13,4 +13,12 @@
     <color name="color_tools_bg">#53a8e4</color>
     <color name="color_record_bg">#33000000</color>
     <color name="color_default_bg">#E0E0E0</color>
+    <color name="ic_launcher_background">#64768D</color>
+    <color name="fab_colorNormal">#FAFAFA</color>
+    <color name="fab_colorPressed">#a7a5a5</color>
+    <color name="fab_colorRipple">#c7c1c1</color>
+    <color name="color_switch">#0E5AA4</color>
+    <color name="color_popup_bg_stroke">#6e97b3</color>
+    <color name="color_sel_bg_stroke">#1298e6</color>
+    <color name="color_popup_text">#64768D</color>
 </resources>

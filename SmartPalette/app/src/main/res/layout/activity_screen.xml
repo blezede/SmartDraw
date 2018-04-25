@@ -8,10 +8,10 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/screen_container"
         android:layout_alignStart="@+id/screen_container"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="@dimen/dimen_40dp"
         android:text="@string/screen_choose"
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="@dimen/dimen_18sp" />
 
     <RelativeLayout
         android:id="@+id/screen_container"
@@ -77,13 +77,13 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/screen_container"
         android:layout_below="@+id/screen_container"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="@dimen/dimen_40dp"
         android:orientation="horizontal">
 
         <CheckBox
             android:id="@+id/agree_cb"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="@dimen/dimen_30dp"
+            android:layout_height="@dimen/dimen_30dp"
             android:layout_gravity="center_vertical"
             android:button="@drawable/check_box_selector"
             android:clickable="false"
@@ -97,7 +97,7 @@
             android:text="@string/check_tip"
             android:textAllCaps="false"
             android:textColor="@android:color/black"
-            android:textSize="12sp" />
+            android:textSize="@dimen/dimen_12sp" />
 
     </LinearLayout>
 
@@ -107,8 +107,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="@dimen/dimen_40dp"
+        android:layout_marginEnd="@dimen/dimen_40dp"
         android:orientation="horizontal">
 
         <TextView
@@ -118,13 +118,13 @@
             android:layout_gravity="center_vertical"
             android:text="@string/start_draw"
             android:textColor="@color/color_enter_enable"
-            android:textSize="14sp" />
+            android:textSize="@dimen/dimen_14sp" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/dimen_6dp"
             android:src="@drawable/arrow" />
     </LinearLayout>
 </RelativeLayout>

@@ -5,14 +5,14 @@
             <item>
                 <shape android:shape="oval">
                     <solid android:color="@android:color/holo_orange_light" />
-                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
+                    <size android:width="@dimen/dimen_20dp" android:height="@dimen/dimen_20dp" />
                 </shape>
             </item>
-            <item android:bottom="@dimen/paint_col_ltrb" android:left="@dimen/paint_col_ltrb" android:right="@dimen/paint_col_ltrb" android:top="@dimen/paint_col_ltrb">
+            <item android:bottom="@dimen/dimen_2dp" android:left="@dimen/dimen_2dp" android:right="@dimen/dimen_2dp" android:top="@dimen/dimen_2dp">
                 <shape android:shape="oval">
 
-                    <stroke android:width="@dimen/paint_col_ltrb" android:color="@android:color/white" />
-                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
+                    <stroke android:width="@dimen/dimen_2dp" android:color="@android:color/white" />
+                    <size android:width="@dimen/dimen_20dp" android:height="@dimen/dimen_20dp" />
                 </shape>
             </item>
         </layer-list>
@@ -22,7 +22,7 @@
             <item>
                 <shape android:shape="oval">
                     <solid android:color="@android:color/holo_orange_light" />
-                    <size android:width="@dimen/paint_col_size" android:height="@dimen/paint_col_size" />
+                    <size android:width="@dimen/dimen_20dp" android:height="@dimen/dimen_20dp" />
                 </shape>
             </item>
         </layer-list>

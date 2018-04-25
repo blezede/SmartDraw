@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/popup_bg"
     android:gravity="center"
-    android:padding="@dimen/eraser_popup_padding">
+    android:padding="@dimen/dimen_5dp">
 
     <RelativeLayout
         android:id="@+id/rl_eraser"
@@ -13,9 +13,10 @@
 
         <ImageView
             android:id="@+id/iv_eraser"
-            android:layout_width="@dimen/eraser_item_w"
-            android:layout_height="@dimen/eraser_item_h"
+            android:layout_width="@dimen/dimen_25dp"
+            android:layout_height="@dimen/dimen_28dp"
             android:layout_centerHorizontal="true"
+            android:contentDescription="@null"
             android:src="@drawable/eraser" />
 
         <TextView
@@ -23,10 +24,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_eraser"
             android:layout_centerHorizontal="true"
-            android:text="@string/eraser_era"
             android:maxLines="1"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/eraser_text_size" />
+            android:text="@string/eraser_era"
+            android:textColor="@color/color_popup_text"
+            android:textSize="@dimen/dimen_11sp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -34,15 +35,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/rl_eraser"
-        android:layout_toEndOf="@+id/rl_eraser"
-        android:layout_marginStart="@dimen/eraser_item_con_ms">
+        android:layout_marginStart="@dimen/dimen_20dp"
+        android:layout_toEndOf="@+id/rl_eraser">
 
         <ImageView
             android:id="@+id/iv_clean"
-            android:layout_width="@dimen/eraser_item_w"
-            android:layout_height="@dimen/eraser_item_h"
+            android:layout_width="@dimen/dimen_25dp"
+            android:layout_height="@dimen/dimen_28dp"
             android:layout_centerHorizontal="true"
-            android:padding="@dimen/eraser_item_padding"
+            android:contentDescription="@null"
+            android:padding="@dimen/dimen_2dp"
             android:src="@drawable/clear" />
 
         <TextView
@@ -50,9 +52,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_clean"
             android:layout_centerHorizontal="true"
-            android:text="@string/eraser_clear"
             android:maxLines="1"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/eraser_text_size" />
+            android:text="@string/eraser_clear"
+            android:textColor="@color/color_popup_text"
+            android:textSize="@dimen/dimen_11sp" />
     </RelativeLayout>
 </RelativeLayout>

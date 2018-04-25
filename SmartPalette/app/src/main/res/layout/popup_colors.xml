@@ -8,7 +8,7 @@
         android:id="@+id/grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/color_popup_gv_m"
+        android:layout_margin="@dimen/dimen_15dp"
         android:listSelector="@null"
         android:numColumns="3"
         android:scrollbars="none" />

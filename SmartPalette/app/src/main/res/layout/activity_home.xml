@@ -19,101 +19,101 @@
         <LinearLayout
             android:id="@+id/tools"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/dimen_60dp"
             android:layout_gravity="bottom|start"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/dimen_10dp"
             android:clipChildren="false"
-            android:minHeight="@dimen/tools_min_w"
-            android:minWidth="@dimen/tools_min_h"
+            android:minHeight="@dimen/dimen_40dp"
+            android:minWidth="@dimen/dimen_40dp"
             android:orientation="horizontal"
-            android:padding="10dp">
+            android:padding="@dimen/dimen_10dp">
 
             <RelativeLayout
                 android:id="@+id/save"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/tools_item_margin_s"
+                android:layout_marginStart="@dimen/dimen_10dp"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="@dimen/tools_item_w"
-                    android:layout_height="@dimen/tools_item_h"
+                    android:layout_width="@dimen/dimen_20dp"
+                    android:layout_height="@dimen/dimen_20dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/save_bg_selector" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/stroke"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/btn_sel_bg"
                 android:gravity="center">
 
                 <android.support.v7.widget.AppCompatImageView
                     android:id="@+id/stroke_img"
-                    android:layout_width="@dimen/tools_item_w"
-                    android:layout_height="@dimen/tools_item_h"
+                    android:layout_width="@dimen/dimen_20dp"
+                    android:layout_height="@dimen/dimen_20dp"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/ic_pen" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/move"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="@dimen/tools_item_w"
-                    android:layout_height="@dimen/tools_item_h"
+                    android:layout_width="@dimen/dimen_20dp"
+                    android:layout_height="@dimen/dimen_20dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/move" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/eraser"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="@dimen/tools_eraser_item_w"
-                    android:layout_height="@dimen/tools_eraser_item_h"
+                    android:layout_width="@dimen/dimen_22dp"
+                    android:layout_height="@dimen/dimen_22dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/eraser" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/undo"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
                 android:gravity="center">
 
                 <ImageView
                     android:id="@+id/undo_img"
-                    android:layout_width="@dimen/tools_item_w"
-                    android:layout_height="@dimen/tools_item_h"
+                    android:layout_width="@dimen/dimen_20dp"
+                    android:layout_height="@dimen/dimen_20dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/undo_sel" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/redo"
-                android:layout_width="@dimen/tools_item_layout_w"
-                android:layout_height="@dimen/tools_item_layout_h"
+                android:layout_width="@dimen/dimen_30dp"
+                android:layout_height="@dimen/dimen_30dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginEnd="@dimen/tools_item_margin_e"
+                android:layout_marginEnd="@dimen/dimen_10dp"
                 android:gravity="center">
 
                 <ImageView
                     android:id="@+id/redo_img"
-                    android:layout_width="@dimen/tools_item_w"
-                    android:layout_height="@dimen/tools_item_h"
+                    android:layout_width="@dimen/dimen_20dp"
+                    android:layout_height="@dimen/dimen_20dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/redo_sel" />
             </RelativeLayout>
@@ -123,8 +123,8 @@
             android:id="@+id/tool_lt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginStart="@dimen/dimen_10dp"
+            android:layout_marginTop="@dimen/dimen_30dp"
             android:orientation="vertical">
 
             <com.github.clans.fab.FloatingActionButton
@@ -132,9 +132,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_droplet1"
-                fab:fab_colorNormal="#FAFAFA"
-                fab:fab_colorPressed="#a7a5a5"
-                fab:fab_colorRipple="#c7c1c1"
+                fab:fab_colorNormal="@color/fab_colorNormal"
+                fab:fab_colorPressed="@color/fab_colorPressed"
+                fab:fab_colorRipple="@color/fab_colorRipple"
                 fab:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
@@ -142,9 +142,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_add_pic2"
-                fab:fab_colorNormal="#FAFAFA"
-                fab:fab_colorPressed="#a7a5a5"
-                fab:fab_colorRipple="#c7c1c1"
+                fab:fab_colorNormal="@color/fab_colorNormal"
+                fab:fab_colorPressed="@color/fab_colorPressed"
+                fab:fab_colorRipple="@color/fab_colorRipple"
                 fab:fab_size="mini" />
 
         </LinearLayout>
@@ -152,18 +152,18 @@
         <LinearLayout
             android:id="@+id/record_status"
             android:layout_width="wrap_content"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/dimen_50dp"
             android:layout_gravity="top|end"
-            android:padding="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/dimen_20dp"
             android:orientation="horizontal"
+            android:padding="@dimen/dimen_10dp"
             android:visibility="invisible">
 
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="3dp"
+                android:layout_marginStart="@dimen/dimen_3dp"
                 app:srcCompat="@drawable/ic_stop" />
 
             <TextView
@@ -171,20 +171,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginEnd="3dp"
+                android:layout_marginEnd="@dimen/dimen_3dp"
                 android:maxLines="1"
                 android:text="@string/record_time_def"
                 android:textColor="@android:color/white"
-                android:textSize="12sp" />
+                android:textSize="@dimen/dimen_12sp" />
         </LinearLayout>
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingBottom="@dimen/dimen_10dp"
+            android:paddingLeft="@dimen/dimen_10dp"
+            android:paddingRight="@dimen/dimen_10dp"
             fab:menu_backgroundColor="#ccffffff"
             fab:menu_fab_label="@string/menu"
             fab:menu_labels_ellipsize="end"
@@ -214,6 +214,7 @@
                 android:src="@drawable/ic_settings"
                 fab:fab_label="@string/menu_settings"
                 fab:fab_size="mini" />
+
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab4"
                 android:layout_width="wrap_content"
