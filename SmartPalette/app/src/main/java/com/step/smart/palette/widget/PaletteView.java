@@ -230,8 +230,8 @@ public class PaletteView extends FrameLayout {
     private void onTouchHandle(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-        int tt = (int) ((double) (this.mFrame.getY() + (y - this.mDownLastY)) + 0.5D);
-        int tl = (int) ((double) (this.mFrame.getX() + (x - this.mDownLastX)) + 0.5D);
+        int tt = (int) ((double) (this.mFrame.getY() + (y - this.mDownLastY))/* + 0.5D*/);
+        int tl = (int) ((double) (this.mFrame.getX() + (x - this.mDownLastX))/* + 0.5D*/);
         int gh = this.mFrameManager.windowTop * 2;
         int gw = this.mFrameManager.windowLeft * 2;
         switch (event.getAction()) {
