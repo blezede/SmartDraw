@@ -107,9 +107,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="@dimen/dimen_40dp"
-        android:layout_marginEnd="@dimen/dimen_40dp"
-        android:orientation="horizontal">
+        android:layout_marginBottom="@dimen/dimen_24dp"
+        android:layout_marginEnd="@dimen/dimen_24dp"
+        android:orientation="horizontal"
+        android:padding="@dimen/dimen_16dp">
 
         <TextView
             android:id="@+id/enter_text"
