@@ -513,7 +513,7 @@ public class PaletteStrokeView extends View {
             return true;
         }
         if (markerDeleteRect.contains(downPoint[0], (int) downPoint[1])) {//判断是否在区域内
-            if (mCurrPathEntity.bitmap != null) {
+            if (mCurrPathEntity != null && mCurrPathEntity.bitmap != null) {
                 mCurrPathEntity.bitmap.recycle();
                 mCurrPathEntity.bitmap = null;
             }

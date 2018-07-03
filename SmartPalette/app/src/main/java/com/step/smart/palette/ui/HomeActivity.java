@@ -875,6 +875,9 @@ public class HomeActivity extends BaseActivity implements PaletteView.PaletteInt
     }
 
     private void showSaveDialog() {
+        if (mPaletteView.isEmpty()) {
+            return;
+        }
         new MaterialDialog.Builder(this)
                 .title(R.string.save_type)
                 .items(R.array.save_sel)

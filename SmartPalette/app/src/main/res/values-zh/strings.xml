@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">画吧</string>
+    <string name="app_name">智绘画板</string>
 
     <string name="paint_type">笔类型</string>
     <string name="paint_size">笔大小</string>

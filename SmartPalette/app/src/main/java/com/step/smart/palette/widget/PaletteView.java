@@ -104,10 +104,16 @@ public class PaletteView extends FrameLayout {
     }
 
     private void initParams() {
+        float factor = 1.0f;
+        if (ScreenUtils.isTablet()) {
+            factor = 1.25f;
+        } else {
+            factor = 2.0f;
+        }
         LayoutParams params = (LayoutParams) this.mFrame.getLayoutParams();
-        mFrameManager.wholeWidth = (int)(getWidth() * 2);
+        mFrameManager.wholeWidth = (int)(getWidth() * factor);
         params.width = mFrameManager.wholeWidth;
-        mFrameManager.wholeHeight = (int)(getHeight() * 2);
+        mFrameManager.wholeHeight = (int)(getHeight() * factor);
         params.height = mFrameManager.wholeHeight;
         this.mFrame.setLayoutParams(params);
         mFrameManager.posX = - (mFrameManager.wholeWidth - mFrameManager.frameWidth) / 2;
@@ -161,7 +167,7 @@ public class PaletteView extends FrameLayout {
             return "";
         }
         if (wholeScreen) {
-            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bmp);
             this.mFrame.draw(canvas);
             byte[] data = BitmapUtils.bitmap2Bytes(bmp, 100);
@@ -173,10 +179,10 @@ public class PaletteView extends FrameLayout {
                 return path;
             }
         } else {
-            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bmp);
             this.mFrame.draw(canvas);
-            Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.ARGB_4444);
+            Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.RGB_565);
             Canvas currCanvas = new Canvas(currBmp);
             currCanvas.drawBitmap(bmp,
                     new Rect((int)(Math.abs(this.mFrame.getX())), (int)Math.abs(this.mFrame.getY()), (int)(Math.abs(this.mFrame.getX()) + this.mFrameManager.frameWidth), (int)(Math.abs(this.mFrame.getY()) + this.mFrameManager.frameHeight)),
@@ -197,12 +203,12 @@ public class PaletteView extends FrameLayout {
 
     public Bitmap screenShotBitmap(boolean wholeScreen) {
         if (wholeScreen) {
-            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bmp);
             this.mFrame.draw(canvas);
             return bmp;
         } else {
-            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.ARGB_4444);
+            Bitmap bmp = Bitmap.createBitmap(this.mFrame.getWidth(), this.mFrame.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bmp);
             this.mFrame.draw(canvas);
             Bitmap currBmp = Bitmap.createBitmap(this.mFrameManager.frameWidth, this.mFrameManager.frameHeight, Bitmap.Config.ARGB_4444);

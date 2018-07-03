@@ -101,6 +101,9 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
     }
 
     private void reFlush() {
+        if(mBufferBitmap == null) {
+            initBuffer();
+        }
         mBufferBitmap.eraseColor(Color.TRANSPARENT);
         for (int i = 0; i < mPaletteData.pathList.size(); i++) {
             PathEntity p = mPaletteData.pathList.get(i);
