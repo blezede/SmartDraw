@@ -100,7 +100,7 @@ public class StrokeDrawView extends View implements /*PaletteSurfaceView*/Palett
         invalidate();
     }
 
-    private void reFlush() {
+    private synchronized void reFlush() {
         if(mBufferBitmap == null) {
             initBuffer();
         }

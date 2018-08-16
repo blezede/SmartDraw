@@ -108,7 +108,7 @@ public class PaletteView extends FrameLayout {
         if (ScreenUtils.isTablet()) {
             factor = 1.25f;
         } else {
-            factor = 2.0f;
+            factor = 1.5f;
         }
         LayoutParams params = (LayoutParams) this.mFrame.getLayoutParams();
         mFrameManager.wholeWidth = (int)(getWidth() * factor);

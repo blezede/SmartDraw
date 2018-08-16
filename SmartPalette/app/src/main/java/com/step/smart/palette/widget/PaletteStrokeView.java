@@ -543,7 +543,9 @@ public class PaletteStrokeView extends View {
         if (record != null) {
             float[] invertPoint = new float[2];
             Matrix invertMatrix = new Matrix();
-            record.matrix.invert(invertMatrix);
+            if (record.matrix != null) {
+                record.matrix.invert(invertMatrix);
+            }
             invertMatrix.mapPoints(invertPoint, downPoint);
             return record.photoRectSrc.contains(invertPoint[0], invertPoint[1]);
         }
