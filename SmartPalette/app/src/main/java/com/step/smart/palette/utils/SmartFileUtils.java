@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created  by  weflow  on  2017/12/26.
+ * Created  by  max  on  2017/12/26.
  */
 
 public class SmartFileUtils {

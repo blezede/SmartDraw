@@ -6,7 +6,7 @@ import android.os.StatFs;
 import java.io.File;
 
 /**
- * Created by weflow on 2018/4/8.
+ * Created by max on 2018/4/8.
  */
 
 public class StorageUtils {

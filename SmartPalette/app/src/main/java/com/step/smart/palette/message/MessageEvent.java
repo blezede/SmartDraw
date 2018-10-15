@@ -1,7 +1,7 @@
 package com.step.smart.palette.message;
 
 /**
- * Created by weflow on 2017/12/27.
+ * Created by max on 2017/12/27.
  */
 
 public class MessageEvent {

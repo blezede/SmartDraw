@@ -1,7 +1,7 @@
 package com.step.smart.palette.manager;
 
 /**
- * Created by weflow on 2018/3/21.
+ * Created by max on 2018/3/21.
  */
 
 public class FrameSizeManager {

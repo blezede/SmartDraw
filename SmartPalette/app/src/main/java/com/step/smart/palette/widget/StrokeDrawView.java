@@ -26,7 +26,7 @@ import com.step.smart.palette.utils.Preferences;
 import java.util.List;
 
 /**
- * Created by weflow on 2018/3/21.
+ * Created by max on 2018/3/21.
  */
 
 public class StrokeDrawView extends View implements /*PaletteSurfaceView*/PaletteStrokeView.SyncDrawInterface {

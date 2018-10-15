@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by weflow on 2017/8/29.
+ * Created by max on 2017/8/29.
  */
 
 public class BitmapUtils {

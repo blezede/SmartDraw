@@ -1,7 +1,7 @@
 package com.step.smart.palette.utils;
 
 /**
- * Created by weflow on 2018/4/2.
+ * Created by max on 2018/4/2.
  */
 
 public class ColorsUtil {

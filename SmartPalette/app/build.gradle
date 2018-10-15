@@ -13,7 +13,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode Integer.valueOf(getDate())
-        versionName "1.0.0.0"
+        versionName "1.0.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "Umeng"]

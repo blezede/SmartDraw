@@ -20,7 +20,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 
 /**
- * Created by weflow on 2018/4/4.
+ * Created by max on 2018/4/4.
  */
 
 public class FlashActivity extends BaseActivity {

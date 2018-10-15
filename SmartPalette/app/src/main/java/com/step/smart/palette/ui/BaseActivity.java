@@ -12,7 +12,7 @@ import com.umeng.analytics.MobclickAgent;
 import butterknife.ButterKnife;
 
 /**
- * Created by weflow on 2018/4/9.
+ * Created by max on 2018/4/9.
  */
 
 public abstract class BaseActivity extends AppCompatActivity {

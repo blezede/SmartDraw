@@ -23,7 +23,7 @@ import com.step.smart.palette.utils.Preferences;
 import com.step.smart.palette.utils.StorageUtils;
 
 /**
- * Created by weflow on 2018/3/21.
+ * Created by max on 2018/3/21.
  */
 
 public class PaletteView extends FrameLayout {

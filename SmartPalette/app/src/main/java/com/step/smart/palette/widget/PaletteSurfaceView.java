@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by weflow on 2018/3/19.
+ * Created by max on 2018/3/19.
  */
 
 public class PaletteSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {

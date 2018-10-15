@@ -14,7 +14,7 @@ import com.step.smart.palette.R;
 import java.io.File;
 
 /**
- * Created by weflow on 2018/4/13.
+ * Created by max on 2018/4/13.
  */
 
 public class ShareUtils {

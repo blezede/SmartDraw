@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by weflow on 2018/4/3.
+ * Created by max on 2018/4/3.
  */
 
 public class PaletteStrokeView extends View {

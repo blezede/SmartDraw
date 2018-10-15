@@ -6,7 +6,7 @@ import com.blankj.utilcode.util.Utils;
 import com.umeng.commonsdk.UMConfigure;
 
 /**
- * Created by weflow on 2018/3/21.
+ * Created by max on 2018/3/21.
  */
 
 public class SmartApplication extends Application {

@@ -1,7 +1,7 @@
 package com.step.smart.palette.Constant;
 
 /**
- * Created by weflow on 2018/4/4.
+ * Created by max on 2018/4/4.
  */
 
 public class PreferenceConstant {

@@ -11,7 +11,7 @@ import android.text.TextPaint;
 import com.step.smart.palette.Constant.LineType;
 
 /**
- * Created by weflow on 2018/3/19.
+ * Created by max on 2018/3/19.
  */
 
 public class PathEntity {

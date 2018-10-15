@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by weflow on 2018/4/9.
+ * Created by max on 2018/4/9.
  */
 
 public class PreViewActivity extends BaseActivity {
