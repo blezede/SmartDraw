@@ -6,49 +6,63 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".SmartApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <meta-data android:value="5acf1d0da40fa33d7f000108" android:name="UMENG_APPKEY"/>
-        <meta-data android:value="${UMENG_CHANNEL_VALUE}" android:name="UMENG_CHANNEL"/>
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="5acf1d0da40fa33d7f000108" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
 
-        <activity android:name=".ui.HomeActivity"
+        <activity
+            android:name=".ui.HomeActivity"
+            android:screenOrientation="sensor" />
+
+        <activity
+            android:name=".ui.FlashActivity"
+            android:configChanges="locale|orientation|screenSize"
             android:screenOrientation="sensor">
-        </activity>
-
-        <activity android:name=".ui.FlashActivity"
-            android:screenOrientation="sensor"
-            android:configChanges="locale|orientation|screenSize">
             <intent-filter>
+
+                <action android:name="android.intent.action.VIEW" />
+
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ScreenSetActivity"
-            android:screenOrientation="sensor"
-            android:configChanges="locale|orientation|screenSize">
+        <activity
+            android:name=".ui.ScreenSetActivity"
+            android:configChanges="locale|orientation|screenSize"
+            android:screenOrientation="sensor">
 
         </activity>
-        <service android:name=".services.RecordService"/>
-        <activity android:name=".ui.SettingsActivity"
-            android:launchMode="singleTop"
+
+        <service android:name=".services.RecordService" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Dialog_Style"/>
-        <activity android:name=".ui.PreViewActivity"
             android:launchMode="singleTop"
+            android:theme="@style/Dialog_Style" />
+        <activity
+            android:name=".ui.PreViewActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Dialog_Style"/>
+            android:launchMode="singleTop"
+            android:theme="@style/Dialog_Style" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"

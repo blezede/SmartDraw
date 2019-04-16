@@ -84,13 +84,23 @@ public class BitmapUtils {
         return result;
     }
 
-    public static Bitmap getSDCardPhoto(Context c, String path) {
+    private Bitmap getSDCardPhoto(Context c, String path, float scale) {
         File file = new File(path);
         if (file.exists()) {
-            return decodeSampleBitMapFromFile(c, path, 1.0f);
+            return BitmapUtils.decodeSampleBitMapFromFile(c, path, scale);
         } else {
             return null;
         }
+    }
+
+    public static Bitmap getSDCardPhoto(Context c, String path) {
+        /*File file = new File(path);
+        if (file.exists()) {
+            return decodeSampleBitMapFromFile(c, path, 0.5f);
+        } else {
+            return null;
+        }*/
+        return compress(path, 100 * 1024, -1);
     }
 
     public static Bitmap getAssetsPhoto(Context c, String path) {
@@ -126,6 +136,82 @@ public class BitmapUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static Bitmap compress(String source, float leastSize, float maxWidthOrHeight) {
+        if (source == null || !new File(source).exists()) {
+            return null;
+        }
+        File src = new File(source);
+        if (leastSize > 0 && src.length() <= leastSize) {
+            return BitmapFactory.decodeFile(source);
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        BitmapFactory.decodeFile(source, options);
+        int srcWidth = options.outWidth;
+        int srcHeight = options.outHeight;
+        if (maxWidthOrHeight > 0) {
+            options.inSampleSize = calculateInSampleSize(options, (int) maxWidthOrHeight, (int) maxWidthOrHeight);
+        } else {
+            options.inSampleSize = computeSize(srcWidth, srcHeight);
+        }
+        options.inJustDecodeBounds = false;
+        Bitmap targetBitmap = BitmapFactory.decodeFile(source, options);
+        if (targetBitmap == null) {
+            return null;
+        }
+        float radio = 0;
+        if (maxWidthOrHeight > 0 && (maxWidthOrHeight < targetBitmap.getHeight() || maxWidthOrHeight < targetBitmap.getWidth())) {
+            int max = Math.max(targetBitmap.getHeight(), targetBitmap.getWidth());
+            radio = (maxWidthOrHeight / (float) max);
+        }
+        int degree = readPictureDegree(source);
+        if (degree != 0 || radio != 0) {
+            targetBitmap = rotatingOrScaleImage(targetBitmap, degree, radio);
+        }
+        return targetBitmap;
+    }
+
+    private static Bitmap rotatingOrScaleImage(Bitmap bitmap, int angle, float radio) {
+        if (angle == 0 && radio == 0) {
+            return bitmap;
+        }
+        Matrix matrix = new Matrix();
+
+        matrix.postRotate(angle);
+
+        if (radio > 0) {
+            matrix.postScale(radio, radio);
+        }
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    private static int computeSize(int srcWidth, int srcHeight) {
+        srcWidth = srcWidth % 2 == 1 ? srcWidth + 1 : srcWidth;
+        srcHeight = srcHeight % 2 == 1 ? srcHeight + 1 : srcHeight;
+
+        int longSide = Math.max(srcWidth, srcHeight);
+        int shortSide = Math.min(srcWidth, srcHeight);
+
+        float scale = ((float) shortSide / longSide);
+        if (scale <= 1 && scale > 0.5625) {
+            if (longSide < 1664) {
+                return 1;
+            } else if (longSide < 4990) {
+                return 2;
+            } else if (longSide > 4990 && longSide < 10240) {
+                return 4;
+            } else {
+                return longSide / 1280 == 0 ? 1 : longSide / 1280;
+            }
+        } else if (scale <= 0.5625 && scale > 0.5) {
+            return longSide / 1280 == 0 ? 1 : longSide / 1280;
+        } else {
+            return (int) Math.ceil(longSide / (1280.0 / scale));
         }
     }
 
@@ -248,6 +334,6 @@ public class BitmapUtils {
         matrix.reset();
         matrix.setRotate(degrees);
         return Bitmap.createBitmap(tmpBitmap, 0, 0, tmpBitmap.getWidth(), tmpBitmap.getHeight(), matrix,
-                        true);
+                true);
     }
 }

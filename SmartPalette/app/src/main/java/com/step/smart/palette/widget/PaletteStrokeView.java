@@ -15,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -25,6 +24,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -35,7 +35,6 @@ import com.step.smart.palette.entity.PaletteData;
 import com.step.smart.palette.entity.PathEntity;
 import com.step.smart.palette.utils.BitmapUtils;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,6 +85,8 @@ public class PaletteStrokeView extends View {
 
     private ScaleGestureDetector mScaleGestureDetector;
 
+    private Context mContext;
+
     public PaletteStrokeView(Context context) {
         this(context, null);
     }
@@ -100,6 +101,7 @@ public class PaletteStrokeView extends View {
     }
 
     private void _init(Context context) {
+        this.mContext = context;
         if (context instanceof PaletteView.PaletteInterface) {
             mPaletteInterface = (PaletteView.PaletteInterface) context;
         }
@@ -154,7 +156,6 @@ public class PaletteStrokeView extends View {
             }
         });
     }
-
 
 
     private float mOriginalX;
@@ -432,15 +433,30 @@ public class PaletteStrokeView extends View {
 
         float scale = 1.0f;
         if (entity.bitmap.getWidth() > ScreenUtils.getScreenWidth() || entity.bitmap.getHeight() > ScreenUtils.getScreenHeight()) {
-            scale = 0.5f;
+            float min = Math.min((float) (ScreenUtils.getScreenWidth()) / entity.bitmap.getWidth(), (float) (ScreenUtils.getScreenHeight()) / entity.bitmap.getHeight());
+            if (min > 1.0f) {
+                scale = 1.0f;
+            } else {
+                if (min < SCALE_MIN) {
+                    min = SCALE_MIN;
+                } else {
+                    if (min - SCALE_MIN > 0 && min - SCALE_MIN > SCALE_MIN) {
+                        min = min - SCALE_MIN;
+                    } else {
+                        min = SCALE_MIN;
+                    }
+                }
+                scale = min;
+            }
+            //scale = 0.5f;
             entity.matrix.postScale(scale, scale);
         }
         int translateX;
         int translateY;
         if (getParent() != null && getParent() != null) {
             FrameLayout parent = (FrameLayout) (getParent());
-            translateX = Math.abs((int)parent.getX()) + ScreenUtils.getScreenWidth() / 2 - (int)(bitmap.getWidth() * scale) / 2;
-            translateY = Math.abs((int)parent.getY()) + ScreenUtils.getScreenHeight() / 2 - (int)(bitmap.getHeight() * scale) / 2;
+            translateX = Math.abs((int) parent.getX()) + ScreenUtils.getScreenWidth() / 2 - (int) (bitmap.getWidth() * scale) / 2;
+            translateY = Math.abs((int) parent.getY()) + ScreenUtils.getScreenHeight() / 2 - (int) (bitmap.getHeight() * scale) / 2;
         } else {
             translateX = getWidth() / 2 - bitmap.getWidth() / 2;
             translateY = getHeight() / 2 - bitmap.getHeight() / 2;
@@ -471,6 +487,7 @@ public class PaletteStrokeView extends View {
         mCurrPathEntity.matrix.mapPoints(photoCorners, photoCornersSrc);
         return photoCorners;
     }
+
     //绘制图像边线（由于图形旋转或不一定是矩形，所以用Path绘制边线）
     public void drawBoard(Canvas canvas, float[] photoCorners) {
         Path photoBorderPath = new Path();
@@ -647,45 +664,36 @@ public class PaletteStrokeView extends View {
             mCurrPathEntity = null;
             invalidate();
         }
+        showProgressDialog();
         new AsyncTask<Void, Void, Bitmap>() {
             @Override
             protected Bitmap doInBackground(Void... voids) {
-                int degree = BitmapUtils.readPictureDegree(path);
-                Bitmap bitmap = getSampleBitMap(path);
-                if (degree > 0) {
-                    return BitmapUtils.rotateToDegrees(bitmap, degree);
-                } else {
-                    return bitmap;
-                }
+                return BitmapUtils.getSampleBitMap(mContext, path);
             }
 
             @Override
             protected void onPostExecute(Bitmap bitmap) {
                 addPhotoByBitmap(bitmap);
+                dismissProgressDialog();
             }
         }.execute();
     }
 
-    private Bitmap getSampleBitMap(String path) {
-        Bitmap sampleBM = null;
-        if (path.contains(Environment.getExternalStorageDirectory().toString())) {
-            sampleBM = getSDCardPhoto(path);
-        } else {
-            sampleBM = getAssetsPhoto(path);
-        }
-        return sampleBM;
-    }
-    private float simpleScale = 0.5f;//图片载入的缩放倍数
-    private Bitmap getSDCardPhoto(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            return BitmapUtils.decodeSampleBitMapFromFile(getContext(), path, simpleScale);
-        } else {
-            return null;
-        }
+    private MaterialDialog mProgressDialog;
+
+    private void showProgressDialog() {
+        mProgressDialog = new MaterialDialog.Builder(mContext)
+                //.title(R.string.progress_dialog)
+                .canceledOnTouchOutside(false)
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();
     }
 
-    public Bitmap getAssetsPhoto(String path) {
-        return BitmapUtils.getBitmapFromAssets(getContext(), path);
+    private void dismissProgressDialog() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
+        mProgressDialog = null;
     }
 }
